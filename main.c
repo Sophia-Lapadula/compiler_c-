@@ -1,3 +1,4 @@
 #include <stdio.h>
-int n =1;
-printf(n);
+#include <stdlib.h>
+
+//Arquivo para pedir pelo terminal que o usuário determine o arquivo a ser compilado
