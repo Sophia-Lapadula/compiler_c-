@@ -1,0 +1,31 @@
+// Definição das enumerações
+typedef enum {
+    ELSE,
+    IF,
+    INT,
+    RETURN,
+    VOID,
+    WHILE,
+    PLUS,
+    MINUS,
+    MULTI,
+    DIVIDE,
+    LEQUAL,
+    LESS,
+    MEQUAL,
+    MORE,
+    EQUAL,
+    DIF,
+    ASSIGN,
+    COMA,
+    SEMICOMA,
+    LPARA,
+    RPARA,
+    LBRACKET,
+    RBRACKET,
+    LKEY,
+    RKEY,
+    NUMBER,
+    ID,  // Identificador
+    ERROR  // Erro léxico
+} TokenType;
