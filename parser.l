@@ -1,55 +1,54 @@
 %{
 #include <stdio.h>
 #include <ctype.h>
+#include "auxparser.c"
 
 int line_number = 1;
 %}
 
 %%
-"ELSE"      { printf("KEYWORD: else\n"); }
-"IF"        { printf("KEYWORD: if\n"); }
-"INT"       { printf("KEYWORD: int\n"); }
-"RETURN"    { printf("KEYWORD: return\n"); }
-"VOID"      { printf("KEYWORD: void\n"); }
-"WHILE"     { printf("KEYWORD: while\n"); }
+"else"      { return ("ELSE"); }
+"if"        { return ("IF"); }
+"int"       { return ("INT"); }
+"return"    { return ("RETURN"); }
+"void"      { return ("VOID"); }
+"while"     { return("WHILE"); }
 
-"PLUS"         { printf("OPERATOR: +\n"); }
-"MINUS"         { printf("OPERATOR: -\n"); }
-"MULTI"         { printf("OPERATOR: *\n"); }
-"DIVIDE"         { printf("OPERATOR: /\n"); }
-"LEQUAL"        { printf("OPERATOR: <=\n"); }
-"LESS"         { printf("OPERATOR: <\n"); }
-"MEQUAL"        { printf("OPERATOR: >=\n"); }
-"MORE"         { printf("OPERATOR: >\n"); }
-"EQUAL"        { printf("OPERATOR: ==\n"); }
-"!="        { printf("OPERATOR: !=\n"); }
-"ASSIGN"         { printf("OPERATOR: =\n"); }
+"+"         { return ("PLUS"); }
+"-"         { return ("MIUS"); }
+"*"         { return ("MULTI"); }
+"/"         { return ("DIVIDE"); }
+"<="        { return ("LEQUAL"); }
+"<"         { return ("LESS"); }
+">="        { return ("MEQUAL"); }
+">"         { return ("MORE"); }
+"=="        { return ("EQUAL"); }
+"!="        { return ("DIF"); }
+"="         { return ("ASSIGN"); }
 
-"COMA"         { printf("SYMBOL: ,\n"); }
-"SEMICOMA"         { printf("SYMBOL: ;\n"); }
-"LBRACKET"        { printf("SYMBOL: (\n"); }
-"\)"        { printf("SYMBOL: )\n"); }
-"\["        { printf("SYMBOL: [\n"); }
-"\]"        { printf("SYMBOL: ]\n"); }
-"\{"        { printf("SYMBOL: {\n"); }
-"\}"        { printf("SYMBOL: }\n"); }
+","         { return ("COMA"); }
+";"         { return ("SEMICOMA"); }
+"\("        { return("LPARA"); }
+"\)"        { return ("RPARA"); }
+"\["        { return ("LBRACKET"); }
+"\]"        { return ("RBRAKET"); }
+"\{"        { return ("LKEY"); }
+"\}"        { return ("RKEY"); }
 
-[0-9]+      { printf("NUMBER: %s\n", yytext); } 
+[0-9]+      { return ("NUMBER", yytext); } 
 [a-zA-Z][a-zA-Z0-9]* {
+    //caso seja uma palavra chave
                 if (!strcmp(yytext, "else") || !strcmp(yytext, "if") || 
                     !strcmp(yytext, "int") || !strcmp(yytext, "return") ||
                     !strcmp(yytext, "void") || !strcmp(yytext, "while")) {
-                    /* Already handled as keywords */
                 } else {
-                    printf("IDENTIFIER: %s\n", yytext);
+                    printf("ID", yytext);
                 }
             }
 
 [ \t]+      ;  // Ignorar espaços e tabulações
 
 \n          { line_number++; }
-
-"/\\*"([^*]|\*+[^*/])*\*+/"   ;  // Ignorar comentários
 
 .           { printf("ERRO LÉXICO: %s LINHA:%d\n", yytext, line_number); }
 
