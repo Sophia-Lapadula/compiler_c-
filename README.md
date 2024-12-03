@@ -4,7 +4,7 @@ Trabalho prático de compiladores para a linguagem fictícia  C-
 Professor: Luiz Galvão
 
 Alunas:
-- Luiza Saliba
+- Luiza Saliba (163931)
 - Sophia Lapadula (148282)
 
 # Objetivo
