@@ -7,33 +7,33 @@ int line_number = 1;
 %}
 
 %%
-"else"      { return ("ELSE"); }
-"if"        { return ("IF"); }
-"int"       { return ("INT"); }
-"return"    { return ("RETURN"); }
-"void"      { return ("VOID"); }
-"while"     { return("WHILE"); }
+"else"      { printf ("ELSE"); }
+"if"        { printf ("IF"); }
+"int"       { printf ("INT"); }
+"return"    { printf ("RETURN"); }
+"void"      { printf ("VOID"); }
+"while"     { printf("WHILE"); }
 
-"+"         { return ("PLUS"); }
-"-"         { return ("MIUS"); }
-"*"         { return ("MULTI"); }
-"/"         { return ("DIVIDE"); }
-"<="        { return ("LEQUAL"); }
-"<"         { return ("LESS"); }
-">="        { return ("MEQUAL"); }
-">"         { return ("MORE"); }
-"=="        { return ("EQUAL"); }
-"!="        { return ("DIF"); }
-"="         { return ("ASSIGN"); }
+"+"         { printf ("PLUS"); }
+"-"         { printf ("MINUS"); }
+"*"         { printf ("MULTI"); }
+"/"         { printf ("DIVIDE"); }
+"<="        { printf ("LEQUAL"); }
+"<"         { printf ("LESS"); }
+">="        { printf ("MEQUAL"); }
+">"         { printf ("MORE"); }
+"=="        { printf ("EQUAL"); }
+"!="        { printf ("DIF"); }
+"="         { printf ("ASSIGN"); }
 
-","         { return ("COMA"); }
-";"         { return ("SEMICOMA"); }
-"\("        { return("LPARA"); }
-"\)"        { return ("RPARA"); }
-"\["        { return ("LBRACKET"); }
-"\]"        { return ("RBRAKET"); }
-"\{"        { return ("LKEY"); }
-"\}"        { return ("RKEY"); }
+","         { printf ("COMA"); }
+";"         { printf ("SEMICOMA"); }
+"\("        { printf("LPARA"); }
+"\)"        { printf ("RPARA"); }
+"\["        { printf ("LBRACKET"); }
+"\]"        { printf ("RBRAKET"); }
+"\{"        { printf ("LKEY"); }
+"\}"        { printf("RKEY"); }
 
 [0-9]+      { return ("NUMBER", yytext); } 
 [a-zA-Z][a-zA-Z0-9]* {
@@ -46,16 +46,33 @@ int line_number = 1;
                 }
             }
 
-[ \t]+      ;  // Ignorar espaços e tabulações
+[ \t]+      {printf(" ")};  // Ignorar espaços e tabulações
 
-\n          { line_number++; }
+\n          {printf("\n"); line_number++; }
 
-.           { printf("ERRO LÉXICO: %s LINHA:%d\n", yytext, line_number); }
+/\*([^*]|\*+[^*/])*\*+/ {
+    /* Ignorar comentários de bloco */
+}
+
+\/\/[^\n]* {
+    /* Ignorar comentários de linha */
+}
+
+. ;
 
 %%
 
-int main() {
-    yylex();
+int main(int argc, char **argv) {
+    if (argc > 1) {
+        FILE *input = fopen(argv[1], "r");
+        if (!input) {
+            perror("Erro ao abrir o arquivo");
+            return 1;
+        }
+        yyin = input;
+    }
+
+    yylex(); /* Inicia a análise léxica */
     return 0;
 }
 
