@@ -1,7 +1,6 @@
 %{
 #include <stdio.h>
 #include <ctype.h>
-#include "auxparser.c"
 
 int line_number = 1;
 %}
