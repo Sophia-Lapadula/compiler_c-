@@ -11,3 +11,4 @@ Alunas:
 Construir um compilador para a linguagem C- que demonstre os aprendizados práticos da matéria de compiladores
 
 # Arquitetura do compilador
+Teste
