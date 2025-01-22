@@ -1,63 +1,58 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 
 int line_number = 1;
 %}
 
 %%
-"else"      { printf ("ELSE"); }
-"if"        { printf ("IF"); }
-"int"       { printf ("INT"); }
-"return"    { printf ("RETURN"); }
-"void"      { printf ("VOID"); }
-"while"     { printf("WHILE"); }
+"else"        { printf("ELSE "); }
+"if"          { printf("IF "); }
+"int"         { printf("INT "); }
+"return"      { printf("RETURN "); }
+"void"        { printf("VOID "); }
+"while"       { printf("WHILE "); }
 
-"+"         { printf ("PLUS"); }
-"-"         { printf ("MINUS"); }
-"*"         { printf ("MULTI"); }
-"/"         { printf ("DIVIDE"); }
-"<="        { printf ("LEQUAL"); }
-"<"         { printf ("LESS"); }
-">="        { printf ("MEQUAL"); }
-">"         { printf ("MORE"); }
-"=="        { printf ("EQUAL"); }
-"!="        { printf ("DIF"); }
-"="         { printf ("ASSIGN"); }
+"+"           { printf("PLUS "); }
+"-"           { printf("MINUS "); }
+"*"           { printf("MULTI "); }
+"/"           { printf("DIVIDE "); }
+"<="          { printf("LEQUAL "); }
+"<"           { printf("LESS "); }
+">="          { printf("MEQUAL "); }
+">"           { printf("MORE "); }
+"=="          { printf("EQUAL "); }
+"!="          { printf("DIF "); }
+"="           { printf("ASSIGN "); }
 
-","         { printf ("COMA"); }
-";"         { printf ("SEMICOMA"); }
-"\("        { printf("LPARA"); }
-"\)"        { printf ("RPARA"); }
-"\["        { printf ("LBRACKET"); }
-"\]"        { printf ("RBRAKET"); }
-"\{"        { printf ("LKEY"); }
-"\}"        { printf("RKEY"); }
+","           { printf("COMA "); }
+";"           { printf("SEMICOMA "); }
+"("           { printf("LPARA "); }
+")"           { printf("RPARA "); }
+"["           { printf("LBRACKET "); }
+"]"           { printf("RBRAKET "); }
+"{"           { printf("LKEY "); }
+"}"           { printf("RKEY "); }
 
-[0-9]+      { return ("NUMBER", yytext); } 
+[0-9]+        { printf("NUMBER(%s) ", yytext); }
 [a-zA-Z][a-zA-Z0-9]* {
-    //caso seja uma palavra chave
-                if (!strcmp(yytext, "else") || !strcmp(yytext, "if") || 
-                    !strcmp(yytext, "int") || !strcmp(yytext, "return") ||
-                    !strcmp(yytext, "void") || !strcmp(yytext, "while")) {
-                } else {
-                    printf("ID", yytext);
-                }
-            }
+    printf("ID(%s) ", yytext);
+}
 
-[ \t]+      {printf(" ")};  // Ignorar espaços e tabulações
+[ \t]+        { /* Ignorar espaços e tabulações */ }
 
-\n          {printf("\n"); line_number++; }
+\n            { line_number++; printf("\n"); }
 
-/\*([^*]|\*+[^*/])*\*+/ {
+"/*"([^*]|\*+[^*/])*\*+"/"  {
     /* Ignorar comentários de bloco */
 }
 
-\/\/[^\n]* {
+"//"[^\n]*    {
     /* Ignorar comentários de linha */
 }
 
-. ;
+.             { printf("UNKNOWN(%s) ", yytext); }
 
 %%
 
