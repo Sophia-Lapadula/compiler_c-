@@ -1,11 +1,20 @@
 %{
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include "y.tab.h"
+# include "globals.h"
+
+extern FILE *yyin;
 
 int line_number = 1;
+
+
+
 %}
+
+digit       [0-9]
+number      {digit}+
+letter      [a-zA-Z]
+identifier  {letter}({letter}|{digit})*
+newline     \n
+whitespace  [ \t\r]+
 
 %%
 
@@ -27,31 +36,32 @@ int line_number = 1;
 ")"         { return RPAREN; }
 "{"         { return LBRACE; }
 "}"         { return RBRACE; }
-";"         { return SEMICOLON; }
-","         { return COMMA; }
 
-[0-9]+      { yylval.intval = atoi(yytext); return NUM; }
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.strval = strdup(yytext); return ID; }
+{newline}   { line_number++; }
+{number}    { return NUM; }
+{identifier} { return ID; }
 
-[ \t\n]     { /* ignore whitespace */ }
-.           { /* ignore any other character */ }
+"//".*      { /* skip single-line comments */ }
+"/*"([^*]|\*+[^*/])*\*+\/ { /* skip multi-line comments */ }
+
+{whitespace} { /* ignore spaces and tabs */ }
+.           { fprintf(stderr, "Unexpected character: %s\n", yytext); }
 
 %%
 
-int main(int argc, char **argv) {
-    if (argc > 1) {
-        FILE *input = fopen(argv[1], "r");
-        if (!input) {
-            perror("Erro ao abrir o arquivo");
-            return 1;
-        }
-        yyin = input;
+void getToken(const char *filename) {
+    FILE *input = fopen(filename, "r");
+    if (!input) {
+        perror("Erro ao abrir o arquivo");
+        exit(1);
     }
-
+    yyin = input;
+    yyparse();
     yylex(); /* Inicia a análise léxica */
-    return 0;
 }
 
-int yywrap() {
-    return 1;
+int yywrap(void) {
+
+    return 1;   
 }
+

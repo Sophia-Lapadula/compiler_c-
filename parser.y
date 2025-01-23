@@ -1,7 +1,5 @@
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include "y.tab.h"
+# include "globals.h"
 
 // Include the scanner header
 int yylex(void);
@@ -10,9 +8,12 @@ void yyerror(const char *s);
 %}
 
 %token INT FLOAT CHAR VOID MAIN INPUT OUTPUT
+%token IF ELSE WHILE
 %token ID NUM
 %token PLUS MINUS TIMES DIVIDE ASSIGN
+%token LT LTE GT GTE EQ NEQ
 %token LPAREN RPAREN LBRACE RBRACE SEMICOLON COMMA
+%token RETURN ERROR
 
 %start program
 
@@ -41,7 +42,6 @@ type_specifier:
     INT
     | FLOAT
     | CHAR
-    | VOID
     ;
 
 fun_declaration:
@@ -160,6 +160,4 @@ void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
 
-int main() {
-    return yyparse();
-}
+
