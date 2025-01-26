@@ -1,19 +1,16 @@
 %{
-# include "globals.h"
+#include "globals.h"
 
 // Include the scanner header
 int yylex(void);
 void yyerror(const char *s);
-
 %}
 
-%token INT FLOAT CHAR VOID MAIN INPUT OUTPUT
-%token IF ELSE WHILE
-%token ID NUM
-%token PLUS MINUS TIMES DIVIDE ASSIGN
-%token LT LTE GT GTE EQ NEQ
-%token LPAREN RPAREN LBRACE RBRACE SEMICOLON COMMA
-%token RETURN ERROR
+%token NUM ID
+%token IF ELSE WHILE INT VOID RETURN
+%token ASSIGN EQ NE LT LTE GT GTE PLUS MINUS TIMES DIVIDE LPAREN RPAREN LBRACKET RBRACKET LKEYS RKEYS COMMA SEMI
+%token ERROR ENDFILE
+
 
 %start program
 
@@ -34,14 +31,12 @@ declaration:
     ;
 
 var_declaration:
-    type_specifier ID SEMICOLON
-    | type_specifier ID LBRACE NUM RBRACE SEMICOLON
+    type_specifier ID SEMI
+    | type_specifier ID LBRACKET NUM RBRACKET SEMI
     ;
 
 type_specifier:
-    INT
-    | FLOAT
-    | CHAR
+    INT | ID | VOID
     ;
 
 fun_declaration:
@@ -60,11 +55,11 @@ param_list:
 
 param:
     type_specifier ID
-    | type_specifier ID LBRACE RBRACE
+    | type_specifier ID LBRACKET RBRACKET
     ;
 
 compound_stmt:
-    LBRACE local_declarations statement_list RBRACE
+    LBRACKET local_declarations statement_list RBRACKET
     ;
 
 local_declarations:
@@ -86,8 +81,8 @@ statement:
     ;
 
 expression_stmt:
-    expression SEMICOLON
-    | SEMICOLON
+    expression SEMI
+    | SEMI
     ;
 
 selection_stmt:
@@ -100,8 +95,8 @@ iteration_stmt:
     ;
 
 return_stmt:
-    RETURN SEMICOLON
-    | RETURN expression SEMICOLON
+    RETURN SEMI
+    | RETURN expression SEMI
     ;
 
 expression:
@@ -111,7 +106,7 @@ expression:
 
 var:
     ID
-    | ID LBRACE expression RBRACE
+    | ID LBRACKET expression RBRACKET
     ;
 
 simple_expression:
@@ -125,7 +120,7 @@ relop:
     | GT
     | GTE
     | EQ
-    | NEQ
+    | NE
     ;
 
 additive_expression:
@@ -159,5 +154,4 @@ factor:
 void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
-
 

@@ -1,67 +1,71 @@
 %{
-# include "globals.h"
-
-extern FILE *yyin;
-
-int line_number = 1;
-
-
-
+#include "globals.h"
+#include "aux_scanner.c"
+char tokenBuffer[MAX_TOKEN_LENGHT +1];
 %}
 
+%option noyywrap
+%x comment_state
 digit       [0-9]
 number      {digit}+
 letter      [a-zA-Z]
-identifier  {letter}({letter}|{digit})*
+identifier  {letter}+
 newline     \n
 whitespace  [ \t\r]+
 
 %%
-
-"int"       { return INT; }
-"float"     { return FLOAT; }
-"char"      { return CHAR; }
-"void"      { return VOID; }
-"main"      { return MAIN; }
-"input"     { return INPUT; }
-"output"    { return OUTPUT; }
-
-"+"         { return PLUS; }
-"-"         { return MINUS; }
-"*"         { return TIMES; }
-"/"         { return DIVIDE; }
-"="         { return ASSIGN; }
-
-"("         { return LPAREN; }
-")"         { return RPAREN; }
-"{"         { return LBRACE; }
-"}"         { return RBRACE; }
-
-{newline}   { line_number++; }
-{number}    { return NUM; }
-{identifier} { return ID; }
-
-"//".*      { /* skip single-line comments */ }
-"/*"([^*]|\*+[^*/])*\*+\/ { /* skip multi-line comments */ }
-
-{whitespace} { /* ignore spaces and tabs */ }
-.           { fprintf(stderr, "Unexpected character: %s\n", yytext); }
-
+"/*"						BEGIN(comment_state);
+<comment_state>[^*\n]*
+<comment_state>"*"+[^*/\n]*
+<comment_state>\n			line_number++;
+<comment_state>"*/"			BEGIN(INITIAL);
+"if"            {return IF;}
+"else"          {return ELSE;}
+"int"		    {return INT;}
+"return"	    {return RETURN;}
+"void"		    {return VOID;}
+"while"		    {return WHILE;}
+"="             {return ASSIGN;}
+"=="            {return EQ;}
+"<"             {return LT;}
+">"		        {return GT;}
+"<="		    {return LTE;}
+">="		    {return GTE;}
+"!="	       	{return NE;}
+"["		        {return LBRACKET;}
+"]"		        {return RBRACKET;}
+"{"		        {return LKEYS;}
+"}"		        {return RKEYS;}
+"+"             {return PLUS;}
+"-"             {return MINUS;}
+"*"             {return TIMES;}
+"/"             {return DIVIDE;}
+"("             {return LPAREN;}
+")"             {return RPAREN;}
+";"             {return SEMI;}
+","		        {return COMMA;}
+{number}        {return NUM;}
+{identifier}    {return ID;}
+{newline}       {line_number++;}
+{whitespace}    {         }
+.               {return ERROR;}
 %%
 
-void getToken(const char *filename) {
-    FILE *input = fopen(filename, "r");
-    if (!input) {
-        perror("Erro ao abrir o arquivo");
-        exit(1);
+TokenType getToken(void) { 
+    static int firstTime = TRUE;
+    TokenType currentToken;
+    if (firstTime) { 
+        firstTime = FALSE;
+        line_number++;
+        yyin = source;
+        yyout = listing;
     }
-    yyin = input;
-    yyparse();
-    yylex(); /* Inicia a análise léxica */
-}
-
-int yywrap(void) {
-
-    return 1;   
+    currentToken = yylex();
+    strncpy(tokenBuffer, yytext, MAX_TOKEN_LENGHT);
+    
+    fprintf(listing, "\t%d: ", line_number);
+    printToken(currentToken, tokenBuffer);
+    
+    return currentToken;
 }
 
