@@ -48,6 +48,7 @@ whitespace  [ \t\r]+
 {identifier}    {return ID;}
 {newline}       {line_number++;}
 {whitespace}    {         }
+<<EOF>> { return ENDFILE;}
 .               {return ERROR;}
 %%
 

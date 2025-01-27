@@ -940,20 +940,22 @@ YY_RULE_SETUP
 #line 50 "scanner.l"
 {         }
 	YY_BREAK
+case YY_STATE_EOF(INITIAL):
+case YY_STATE_EOF(comment_state):
+#line 51 "scanner.l"
+{ return ENDFILE;}
+	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 51 "scanner.l"
+#line 52 "scanner.l"
 {return ERROR;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 52 "scanner.l"
+#line 53 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 954 "lex.yy.c"
-case YY_STATE_EOF(INITIAL):
-case YY_STATE_EOF(comment_state):
-	yyterminate();
+#line 959 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1956,7 +1958,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 52 "scanner.l"
+#line 53 "scanner.l"
 
 
 TokenType getToken(void) { 

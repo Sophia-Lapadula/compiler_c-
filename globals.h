@@ -18,7 +18,7 @@ FILE *source;
 FILE *listing;
 // ---- Needed in aux_scanner.c ----
 
-#define MAX_TOKEN_LENGHT 40
+#define MAX_TOKEN_LENGHT 50
 typedef int TokenType;
 extern int line_number;//Variable that stores the line number
 TokenType getToken(void);

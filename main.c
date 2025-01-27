@@ -1,5 +1,4 @@
 # include "globals.h"
-
 int line_number = 0;
 
 
@@ -18,8 +17,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "File %s wasnot found\n", pgm);
         exit(1);
     }
-    //listing = stdout;
-    //fprintf(listing, "\nC- COMPILATION: %s\n", pgm);
+    listing = stdout;
+    fprintf(listing, "\nC- COMPILATION: %s\n", pgm);
 
     while (getToken() != ENDFILE);
     
