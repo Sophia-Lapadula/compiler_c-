@@ -1,7 +1,6 @@
 %{
 #include "globals.h"
-
-// Include the scanner header
+#include "aux_parser.c"
 int yylex(void);
 void yyerror(const char *s);
 %}

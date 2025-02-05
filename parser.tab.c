@@ -69,12 +69,11 @@
 #line 1 "parser.y"
 
 #include "globals.h"
-
-// Include the scanner header
+#include "aux_parser.c"
 int yylex(void);
 void yyerror(const char *s);
 
-#line 78 "parser.tab.c"
+#line 77 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -528,12 +527,12 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    20,    20,    24,    25,    29,    30,    34,    35,    39,
-      39,    39,    43,    47,    48,    52,    53,    57,    58,    62,
-      66,    67,    71,    72,    76,    77,    78,    79,    80,    84,
-      85,    89,    90,    94,    98,    99,   103,   104,   108,   109,
-     113,   114,   118,   119,   120,   121,   122,   123,   127,   128,
-     132,   133,   137,   138,   142,   143,   147,   148,   149
+       0,    19,    19,    23,    24,    28,    29,    33,    34,    38,
+      38,    38,    42,    46,    47,    51,    52,    56,    57,    61,
+      65,    66,    70,    71,    75,    76,    77,    78,    79,    83,
+      84,    88,    89,    93,    97,    98,   102,   103,   107,   108,
+     112,   113,   117,   118,   119,   120,   121,   122,   126,   127,
+     131,   132,   136,   137,   141,   142,   146,   147,   148
 };
 #endif
 
@@ -1389,7 +1388,7 @@ yyreduce:
   switch (yyn)
     {
 
-#line 1393 "parser.tab.c"
+#line 1392 "parser.tab.c"
 
       default: break;
     }
@@ -1621,7 +1620,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 152 "parser.y"
+#line 151 "parser.y"
 
 
 void yyerror(const char *s) {

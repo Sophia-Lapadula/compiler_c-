@@ -4,7 +4,6 @@
 # include <stdlib.h>
 # include <ctype.h>
 # include <string.h>
-//#include "aux_scanner.c"
 # include "parser.tab.h"
 
 #define TRUE 1
