@@ -49,14 +49,14 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    IF = 258,
-    ELSE = 259,
-    WHILE = 260,
-    INT = 261,
-    VOID = 262,
-    RETURN = 263,
-    NUM = 264,
-    ID = 265,
+    NUM = 258,
+    ID = 259,
+    IF = 260,
+    ELSE = 261,
+    WHILE = 262,
+    INT = 263,
+    VOID = 264,
+    RETURN = 265,
     ASSIGN = 266,
     EQ = 267,
     NE = 268,

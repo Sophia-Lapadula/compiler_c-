@@ -1,6 +1,6 @@
 %{
 #include "globals.h"
-#include "aux_scanner.c"
+#include "aux_scanner.h"
 char tokenBuffer[MAX_TOKEN_LENGHT +1];
 %}
 
@@ -44,11 +44,10 @@ whitespace  [ \t\r]+
 ")"             {return RPAREN;}
 ";"             {return SEMI;}
 ","		        {return COMMA;}
-{number}        {return NUM;}
-{identifier}    {return ID;}
+{number} { return NUM;}
+{identifier} { return ID;}
 {newline}       {line_number++;}
 {whitespace}    {         }
-<<EOF>> { return ENDFILE;}
 .               {return ERROR;}
 %%
 

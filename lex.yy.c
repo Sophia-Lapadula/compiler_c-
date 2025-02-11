@@ -487,7 +487,7 @@ char *yytext;
 #line 1 "scanner.l"
 #line 2 "scanner.l"
 #include "globals.h"
-#include "aux_scanner.c"
+#include "aux_scanner.h"
 char tokenBuffer[MAX_TOKEN_LENGHT +1];
 #line 493 "lex.yy.c"
 
@@ -922,12 +922,12 @@ YY_RULE_SETUP
 case 31:
 YY_RULE_SETUP
 #line 47 "scanner.l"
-{return NUM;}
+{ return NUM;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 48 "scanner.l"
-{return ID;}
+{ return ID;}
 	YY_BREAK
 case 33:
 /* rule 33 can match eol */
@@ -940,22 +940,20 @@ YY_RULE_SETUP
 #line 50 "scanner.l"
 {         }
 	YY_BREAK
-case YY_STATE_EOF(INITIAL):
-case YY_STATE_EOF(comment_state):
-#line 51 "scanner.l"
-{ return ENDFILE;}
-	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 52 "scanner.l"
+#line 51 "scanner.l"
 {return ERROR;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 53 "scanner.l"
+#line 52 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 959 "lex.yy.c"
+#line 954 "lex.yy.c"
+case YY_STATE_EOF(INITIAL):
+case YY_STATE_EOF(comment_state):
+	yyterminate();
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1958,7 +1956,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 53 "scanner.l"
+#line 52 "scanner.l"
 
 
 TokenType getToken(void) { 

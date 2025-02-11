@@ -1,146 +1,153 @@
 #include "globals.h"
-// arquivo onde vamos colocar as funções auxiliares da construção de árvore
+#include "aux_parser.h"
 
-// ================== INÍCIO DAS DEFINIÇÕES DA ÁRVORE ==================
 
-// Máximo de filhos por nó (pode ser ajustado conforme a gramática)
-#define MAXCHILDREN 3
+/* Função que propaga um escopo para toda a árvore */
+void aggScope(TreeNode *t, char *scope) {
+    int i;
+    while (t != NULL) {
+        for (i = 0; i < MAXCHILDREN; ++i) {
+            t->attr.scope = scope;
+            aggScope(t->child[i], scope);
+        }
+        t = t->sibling;
+    }
+}
 
-// Tipos de nós da árvore
-typedef enum { DeclK, StmtK, ExpK } NodeKind;
-
-// Exemplos de tipos específicos para cada categoria (ajuste conforme necessário)
-typedef enum { VarK, FunK, ParamK } DeclKind;
-typedef enum { CompK, IfK, WhileK, ReturnK } StmtKind;
-typedef enum { OpK, ConstK, IdK } ExpKind;
-
-// Estrutura do nó da árvore sintática (AST)
-typedef struct treeNode {
-    struct treeNode *child[MAXCHILDREN]; // Filhos do nó
-    struct treeNode *sibling;            // Nó irmão (para juntar declarações ou comandos em sequência)
-    int lineno;                          // Número da linha
-    NodeKind nodeKind;                   // Tipo do nó: declaração, comando ou expressão
-    union {
-        DeclKind decl;  // Se for nó de declaração
-        StmtKind stmt;  // Se for nó de comando
-        ExpKind exp;    // Se for nó de expressão
-    } kind;
-    // Atributos (por exemplo, para armazenar valores constantes ou nomes de identificadores)
-    int attr_val;      // Ex.: valor numérico
-    char *attr_name;   // Ex.: nome do identificador ou operador
-} TreeNode;
-
-// Ponteiro global para a árvore sintática
-extern TreeNode *syntaxTree;
-
-// Protótipo da função para imprimir a árvore
-void printTree(TreeNode *tree, int indent);
-
-// =================== FIM DAS DEFINIÇÕES DA ÁRVORE ===================
-// =================== FUNÇÕES AUXILIARES PARA A ÁRVORE ===================
-
-// Cria um novo nó para comandos (statements)
-TreeNode *newStmtNode(StmtKind kind) {
-    TreeNode *t = (TreeNode *) malloc(sizeof(TreeNode));
+/* Cria um novo nó de declaração */
+TreeNode *newStmtNode(StatementKind kind) {
+    TreeNode *t = (TreeNode *)malloc(sizeof(TreeNode));
     int i;
     if (t == NULL)
-        fprintf(listing, "Erro de alocação na linha %d\n", line_number);
+        fprintf(listing, "Out of memory error at line %d\n", line_number);
     else {
         for (i = 0; i < MAXCHILDREN; i++)
             t->child[i] = NULL;
         t->sibling = NULL;
-        t->lineno = line_number;
-        t->nodeKind = StmtK;
+        t->nodekind = statementK;
         t->kind.stmt = kind;
+        t->line_number = line_number;
+        t->attr.scope = "global";
     }
     return t;
 }
 
-// Cria um novo nó para expressões
-TreeNode *newExpNode(ExpKind kind) {
-    TreeNode *t = (TreeNode *) malloc(sizeof(TreeNode));
+/* Cria um novo nó de expressão */
+TreeNode *newExpNode(ExpressionIdentifier kind) {
+    TreeNode *t = (TreeNode *)malloc(sizeof(TreeNode));
     int i;
     if (t == NULL)
-        fprintf(listing, "Erro de alocação na linha %d\n", line_number);
+        fprintf(listing, "Out of memory error at line %d\n", line_number);
     else {
         for (i = 0; i < MAXCHILDREN; i++)
             t->child[i] = NULL;
         t->sibling = NULL;
-        t->lineno = line_number;
-        t->nodeKind = ExpK;
+        t->nodekind = expressionK;
         t->kind.exp = kind;
+        t->line_number = line_number;
+        t->type = voidK;
+        t->attr.scope = "global";
     }
     return t;
 }
 
-// Cria um novo nó para declarações
-TreeNode *newDeclNode(DeclKind kind) {
-    TreeNode *t = (TreeNode *) malloc(sizeof(TreeNode));
-    int i;
+/* Função que cria uma cópia de uma string */
+char *copyString(char *s) {
+    int n;
+    char *t;
+    if (s == NULL)
+        return NULL;
+    n = strlen(s) + 1;
+    t = malloc(n);
     if (t == NULL)
-        fprintf(listing, "Erro de alocação na linha %d\n", line_number);
-    else {
-        for (i = 0; i < MAXCHILDREN; i++)
-            t->child[i] = NULL;
-        t->sibling = NULL;
-        t->lineno = line_number;
-        t->nodeKind = DeclK;
-        t->kind.decl = kind;
-    }
+        fprintf(listing, "Out of memory error at line %d\n", line_number);
+    else
+        strcpy(t, s);
     return t;
 }
 
-// Declaração global para armazenar a árvore sintática
-TreeNode *syntaxTree = NULL;
+static int indentno = 0;
 
-// =======================================================================
-void printTree(TreeNode *tree, int indent) {
+#define INDENT indentno += 4
+#define UNINDENT indentno -= 4
+
+static void printSpaces(void) {
     int i;
+    for (i = 0; i < indentno; i++)
+        fprintf(listing, " ");
+}
+
+/* Função que imprime recursivamente a árvore sintática */
+void printTree(TreeNode *tree) {
+    int i;
+    INDENT;
     while (tree != NULL) {
-        for (i = 0; i < indent; i++)
-            fprintf(listing, " ");
-        
-        // Imprime informações dependendo do tipo do nó
-        if (tree->nodeKind == StmtK) {
+        printSpaces();
+        if (tree->nodekind == statementK) {
             switch (tree->kind.stmt) {
-                case IfK:
-                    fprintf(listing, "If Statement");
+                case ifK:
+                    fprintf(listing, "If\n");
                     break;
-                case WhileK:
-                    fprintf(listing, "While Statement");
+                case assignK:
+                    fprintf(listing, "Assign\n");
                     break;
-                case ReturnK:
-                    fprintf(listing, "Return Statement");
+                case whileK:
+                    fprintf(listing, "While\n");
                     break;
-                case CompK:
-                    fprintf(listing, "Compound Statement");
+                case variableK:
+                    fprintf(listing, "Variable %s\n", tree->attr.name);
+                    break;
+                case arrayK:
+                    fprintf(listing, "Array %s\n", tree->attr.name);
+                    break;
+                case paramK:
+                    fprintf(listing, "Param %s\n", tree->attr.name);
+                    break;
+                case functionK:
+                    fprintf(listing, "Function %s\n", tree->attr.name);
+                    break;
+                case callK:
+                    fprintf(listing, "Call to Function %s\n", tree->attr.name);
+                    break;
+                case returnK:
+                    fprintf(listing, "Return\n");
                     break;
                 default:
-                    fprintf(listing, "Unknown Statement");
+                    fprintf(listing, "Unknown statement kind\n");
+                    break;
             }
-        } else if (tree->nodeKind == ExpK) {
-            if (tree->kind.exp == OpK)
-                fprintf(listing, "Op: %s", tree->attr_name);
-            else if (tree->kind.exp == ConstK)
-                fprintf(listing, "Const: %d", tree->attr_val);
-            else if (tree->kind.exp == IdK)
-                fprintf(listing, "Id: %s", tree->attr_name);
-        } else if (tree->nodeKind == DeclK) {
-            if (tree->kind.decl == VarK)
-                fprintf(listing, "Var Declaration: %s", tree->attr_name);
-            else if (tree->kind.decl == FunK)
-                fprintf(listing, "Fun Declaration: %s", tree->attr_name);
-            else if (tree->kind.decl == ParamK)
-                fprintf(listing, "Param Declaration: %s", tree->attr_name);
         }
-        fprintf(listing, "\n");
-
-        // Imprime os filhos com indentação adicional
-        for (i = 0; i < MAXCHILDREN; i++) {
-            if (tree->child[i] != NULL)
-                printTree(tree->child[i], indent + 4);
+        else if (tree->nodekind == expressionK) {
+            switch (tree->kind.exp) {
+                case operationK:
+                    fprintf(listing, "Operation: ");
+                    printToken(tree->attr.op, "\0");
+                    break;
+                case constantK:
+                    fprintf(listing, "Constant: %d\n", tree->attr.val);
+                    break;
+                case idK:
+                    fprintf(listing, "Id: %s\n", tree->attr.name);
+                    break;
+                case vectorK:
+                    fprintf(listing, "Vector: %s\n", tree->attr.name);
+                    break;
+                case vectorIdK:
+                    fprintf(listing, "Index [%d]\n", tree->attr.val);
+                    break;
+                case typeK:
+                    fprintf(listing, "Type %s\n", tree->attr.name);
+                    break;
+                default:
+                    fprintf(listing, "Unknown expression kind\n");
+                    break;
+            }
         }
-        // Procede para o nó irmão
+        else
+            fprintf(listing, "Unknown node kind\n");
+        for (i = 0; i < MAXCHILDREN; i++)
+            printTree(tree->child[i]);
         tree = tree->sibling;
     }
+    UNINDENT;
 }
