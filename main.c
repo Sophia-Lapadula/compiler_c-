@@ -1,6 +1,8 @@
 #include "globals.h"   /* Header gerado pelo Bison (declara a função parse) */
 #include "aux_parser.h" /* Funções auxiliares para a construção da árvore sintática */
 #include "aux_scanner.h" /* Funções auxiliares para o scanner */
+#include "semantic.h" // Para chamar a análise semântica
+#include "symtab.h"   // Para manipular a tabela de símbolos
 
 
 /* Definição das variáveis globais */
@@ -35,8 +37,18 @@ int main(int argc, char *argv[]) {
     /* Chama o parser para construir a árvore sintática */
     syntaxTree = parse();
    
-    fprintf(listing, "\nSyntax tree:\n");
+    fprintf(listing, "\n-------------------Arvore Sintatica---------------------:\n");
     printTree(syntaxTree);
+   
+    // Chama a análise semântica para validar o código e preencher a tabela de símbolos
+    analyze(syntaxTree);
+
+    // ========================== IMPRESSÃO DA TABELA DE SÍMBOLOS ==========================
+
+    fprintf(listing, "\nTabela de Símbolos:\n");
+    printSymbolTable(); // Imprime todos os símbolos e suas ocorrências
+
+    freeTree(syntaxTree);
     
     fclose(source);
     return 0;

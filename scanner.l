@@ -60,7 +60,9 @@ TokenType getToken(void) {
         yyin = source;
         yyout = listing;
     }
+
     currentToken = yylex();
+    memset(tokenBuffer, 0, sizeof(tokenBuffer));
     strncpy(tokenBuffer, yytext, MAX_TOKEN_LENGHT);
     
     fprintf(listing, "\t%d: ", line_number);

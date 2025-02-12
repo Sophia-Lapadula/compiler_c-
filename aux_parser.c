@@ -151,3 +151,71 @@ void printTree(TreeNode *tree) {
     }
     UNINDENT;
 }
+
+void printAbstractTree(TreeNode *tree) {
+    int i;
+    INDENT;
+    while (tree != NULL) {
+        printSpaces();
+        if (tree->nodekind == statementK) {
+            switch (tree->kind.stmt) {
+                case ifK:
+                    fprintf(listing, "If\n");
+                    break;
+                case assignK:
+                    fprintf(listing, "Assign\n");
+                    break;
+                case whileK:
+                    fprintf(listing, "While\n");
+                    break;
+                case returnK:
+                    fprintf(listing, "Return\n");
+                    break;
+                case callK:
+                    fprintf(listing, "Call to Function: %s\n", tree->attr.name);
+                    break;
+                default:
+                    break; // Ignore other statement kinds
+            }
+        } else if (tree->nodekind == expressionK) {
+            switch (tree->kind.exp) {
+                case operationK:
+                    fprintf(listing, "Operation: ");
+                    printToken(tree->attr.op, "\0");
+                    break;
+                case constantK:
+                    fprintf(listing, "Constant: %d\n", tree->attr.val);
+                    break;
+                case idK:
+                    fprintf(listing, "Id: %s\n", tree->attr.name);
+                    break;
+                default:
+                    break; // Ignore other expression kinds
+            }
+        }
+        for (i = 0; i < MAXCHILDREN; i++) {
+            if (tree->child[i] != NULL) {
+                printSpaces();
+                fprintf(listing, "Child %d:\n", i);
+                printAbstractTree(tree->child[i]);
+            }
+        }
+        tree = tree->sibling;
+        if (tree != NULL) {
+            printSpaces();
+            fprintf(listing, "Sibling:\n");
+        }
+    }
+    UNINDENT;
+}
+
+void freeTree(TreeNode *tree) {
+    int i;
+    if (tree != NULL) {
+        for (i = 0; i < MAXCHILDREN; i++) {
+            freeTree(tree->child[i]);
+        }
+        freeTree(tree->sibling);
+        free(tree);
+    }
+}

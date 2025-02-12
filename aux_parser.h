@@ -7,6 +7,7 @@ TreeNode *newStmtNode(StatementKind kind);
 TreeNode *newExpNode(ExpressionIdentifier kind);
 char *copyString(char *s);
 void printTree(TreeNode *tree);
-
+void printAbstractTree(TreeNode *tree);
+void freeTree(TreeNode *tree);
 
 #endif /* AUX_PARSER_H */

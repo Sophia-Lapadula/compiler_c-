@@ -80,7 +80,7 @@ extern int Error;
 /* Protótipo da função parse */
 TreeNode * parse(void);
 
-
-
+#define SIZE 211  // Tamanho da tabela hash (número primo melhora a distribuição)
+#define SHIFT 4   // Para a função de dispersão
 
 #endif /* GLOBALS_H */
