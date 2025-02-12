@@ -1,36 +1,39 @@
-#include "globals.h"
 #include "util.h"
 
-// Funções auxiliares
+
+/* Cria um novo nó de declaração */
 TreeNode *newStmtNode(StatementKind kind) {
     TreeNode *t = (TreeNode *)malloc(sizeof(TreeNode));
-    if (t == NULL) {
-        fprintf(stderr, "Out of memory error at line %d\n", __LINE__);
-    } else {
-        t->nodekind = statementK; // Use the correct enumeration for declaration nodes
-        t->kind.stmt = kind;
-        t->attr.name = NULL;
-        t->attr.scope = NULL;
-        t->type = voidK; // Use the correct type enumeration
-        for (int i = 0; i < MAXCHILDREN; i++) t->child[i] = NULL;
+    int i;
+    if (t == NULL)
+        fprintf(listing, "Out of memory error at line %d\n", line_number);
+    else {
+        for (i = 0; i < MAXCHILDREN; i++)
+            t->child[i] = NULL;
         t->sibling = NULL;
+        t->nodekind = statementK;
+        t->kind.stmt = kind;
+        t->line_number = line_number;
+        t->attr.scope = "global";
     }
     return t;
 }
 
-// Define newExpNode here
+/* Cria um novo nó de expressão */
 TreeNode *newExpNode(ExpressionIdentifier kind) {
     TreeNode *t = (TreeNode *)malloc(sizeof(TreeNode));
-    if (t == NULL) {
-        fprintf(stderr, "Out of memory error at line %d\n", __LINE__);
-    } else {
-        t->nodekind = expressionK; // Use the correct enumeration for expression nodes
-        t->kind.exp = kind;
-        t->attr.name = NULL;
-        t->attr.scope = NULL;
-        t->type = voidK; // Use the correct type enumeration
-        for (int i = 0; i < MAXCHILDREN; i++) t->child[i] = NULL;
+    int i;
+    if (t == NULL)
+        fprintf(listing, "Out of memory error at line %d\n", line_number);
+    else {
+        for (i = 0; i < MAXCHILDREN; i++)
+            t->child[i] = NULL;
         t->sibling = NULL;
+        t->nodekind = expressionK;
+        t->kind.exp = kind;
+        t->line_number = line_number;
+        t->type = voidK;
+        t->attr.scope = "global";
     }
     return t;
 }
