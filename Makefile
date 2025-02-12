@@ -4,13 +4,13 @@ TARGET = compilador
 # Fontes do projeto
 BISON_SRC      = parser.y
 FLEX_SRC       = scanner.l
-MAIN_SRC       = main.cpp
-AUXPARSER_SRC  = aux_parser.cpp
-AUXSCANNER_SRC = aux_scanner.cpp
-SEMANTIC_SRC   = semanitc.cpp
-SYMTAB_SRC     = symtab.cpp
-UTIL_SRC       = util.cpp
-HASH_SRC       = hash.cpp
+MAIN_SRC       = main.c
+AUXPARSER_SRC  = aux_parser.c
+AUXSCANNER_SRC = aux_scanner.c
+SEMANTIC_SRC   = semanitc.c
+SYMTAB_SRC     = symtab.c
+UTIL_SRC       = util.c
+HASH_SRC       = hash.c
 
 # Arquivos gerados pelo Bison e Flex
 BISON_C        = parser.tab.c
@@ -18,9 +18,9 @@ BISON_H        = parser.tab.h
 FLEX_C         = lex.yy.c
 
 # Compilador e flags
-CXX      = g++
-CXXFLAGS = -Wall -g
-LDFLAGS  = -lfl  # Apenas -lfl, sem -ly
+CC      = gcc
+CFLAGS  = -Wall -g
+LDFLAGS = -lfl  # Apenas -lfl, sem -ly
 
 # Regra padrão
 all: $(TARGET)

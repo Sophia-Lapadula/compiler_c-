@@ -7,7 +7,6 @@ void aggScope(TreeNode *t, char *scope);
 
 char *copyString(char *s);
 void printTree(TreeNode *tree);
-void printAbstractTree(TreeNode *tree);
 void freeTree(TreeNode *tree);
 
 #endif /* AUX_PARSER_H */
