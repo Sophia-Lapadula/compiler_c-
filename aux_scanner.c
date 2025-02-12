@@ -1,5 +1,6 @@
 #include "globals.h"
 #include "aux_scanner.h" 
+#include "util.h"
 
 void printToken(TokenType token, const char *tokenString) {
 

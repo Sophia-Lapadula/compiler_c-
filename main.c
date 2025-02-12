@@ -3,6 +3,7 @@
 #include "aux_scanner.h" /* Funções auxiliares para o scanner */
 #include "semantic.h" // Para chamar a análise semântica
 #include "symtab.h"   // Para manipular a tabela de símbolos
+#include "util.h"
 
 
 /* Definição das variáveis globais */

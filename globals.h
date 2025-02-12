@@ -12,6 +12,7 @@
 # ifndef YYPARSER
 
 # include "parser.tab.h"
+//#include "util.h"
 
 # define ENDFILE 0
 

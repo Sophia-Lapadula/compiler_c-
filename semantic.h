@@ -2,6 +2,7 @@
 #define _SEMANTIC_H_
 
 #include "globals.h"
+#include "util.h"
 
 // Função principal da análise semântica
 void analyze(TreeNode *syntaxTree);

@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "util.h"
 #include "symtab.h"
 
 // Variável global para o escopo atual
@@ -78,15 +79,19 @@ BucketList lookupSymbol(char *name) {
 
 /* Exibe a tabela de símbolos */
 void printSymbolTable() {
-    fprintf(listing, "Nome\tLinha\tTipo\n");
-    fprintf(listing, "--------------------------\n");
-    for (int i = 0; i < SIZE; i++) {
-        if (hashTable[i] != NULL) {
-            BucketList l = hashTable[i];
+    Scope sc = currentScope;
+    while (sc != NULL) {
+        for (int i = 0; i < 211; ++i) {
+            BucketList l = sc->hashTable[i];
             while (l != NULL) {
-                fprintf(listing, "%s\t%d\t%d\n", l->name, l->lines, l->kind);
+                LineList lines = l->lines;
+                while (lines != NULL) {
+                    fprintf(listing, "%s\t%d\t%d\n", l->name, lines->line_number, l->kind);
+                    lines = lines->next;
+                }
                 l = l->next;
             }
         }
+        sc = sc->parent;
     }
 }

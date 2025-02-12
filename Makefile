@@ -4,11 +4,13 @@ TARGET = compilador
 # Fontes do projeto
 BISON_SRC      = parser.y
 FLEX_SRC       = scanner.l
-MAIN_SRC       = main.c
-AUXPARSER_SRC  = aux_parser.c
-AUXSCANNER_SRC = aux_scanner.c
-SEMANTIC_SRC   = semanitc.c
-SYMTAB_SRC     = symtab.c
+MAIN_SRC       = main.cpp
+AUXPARSER_SRC  = aux_parser.cpp
+AUXSCANNER_SRC = aux_scanner.cpp
+SEMANTIC_SRC   = semanitc.cpp
+SYMTAB_SRC     = symtab.cpp
+UTIL_SRC       = util.cpp
+HASH_SRC       = hash.cpp
 
 # Arquivos gerados pelo Bison e Flex
 BISON_C        = parser.tab.c
@@ -16,9 +18,9 @@ BISON_H        = parser.tab.h
 FLEX_C         = lex.yy.c
 
 # Compilador e flags
-CC      = gcc
-CFLAGS  = -Wall -g
-LDFLAGS = -lfl  # Apenas -lfl, sem -ly
+CXX      = g++
+CXXFLAGS = -Wall -g
+LDFLAGS  = -lfl  # Apenas -lfl, sem -ly
 
 # Regra padrão
 all: $(TARGET)
@@ -39,7 +41,7 @@ main.o: $(BISON_H)
     $(CC) $(CFLAGS) -c $< -o $@
 
 # Lista de objetos
-OBJS = main.o $(BISON_C:.c=.o) $(FLEX_C:.c=.o) aux_parser.o aux_scanner.o semanitc.o symtab.o
+OBJS = main.o $(BISON_C:.c=.o) $(FLEX_C:.c=.o) aux_parser.o aux_scanner.o semanitc.o symtab.o util.o hash.o
 
 # Regra para linkar e gerar o executável
 $(TARGET): $(OBJS)
