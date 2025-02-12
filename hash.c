@@ -1,9 +1,11 @@
 #include "globals.h"
-#include "util.h"
 #include "symtab.h"
+#include "util.h"
+#include "semantic.h"
+
 
 // Variável global para o escopo atual
-extern Scope currentScope;
+//extern Scope currentScope;
 static BucketList hashTable[SIZE];
 // Função hash para calcular o índice na tabela hash
 static int hash(char *key) {
@@ -17,35 +19,38 @@ static int hash(char *key) {
 }
 
 // Insere um novo identificador na tabela de símbolos do escopo atual
-void insertSymbol(char *name, int line_number, NodeKind kind, ExpressionIdentifier type) {
-    if (currentScope == NULL) {
-        fprintf(stderr, "Erro: Nenhum escopo ativo para inserir '%s'.\n", name);
-        return;
+static void insertNode(TreeNode *t) {
+    if (t->nodekind == statementK && t->kind.stmt == functionK) {
+        // Insere a função no escopo atual e entra no novo escopo da função
+        insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
+        enterScope(t->attr.name); // Agora o escopo corrente é o da função
+        currentFunctionType = t->type;
+        currentFunctionName = t->attr.name;
     }
-
-    int h = hash(name); // Calcula o índice hash
-    BucketList l = currentScope->hashTable[h]; // Acessa o bucket correspondente
-
-    // Verifica se o identificador já existe no escopo atual
-    while ((l != NULL) && (strcmp(name, l->name) != 0))
-        l = l->next;
-
-    if (l == NULL) { // Novo identificador
-        l = (BucketList)malloc(sizeof(struct BucketListRec));
-        l->name = strdup(name);
-        l->kind = kind;
-        l->type = type;
-        l->lines = (LineList)malloc(sizeof(struct LineListRec));
-        l->lines->line_number = line_number;
-        l->lines->next = NULL;
-        l->next = currentScope->hashTable[h];
-        currentScope->hashTable[h] = l;
-    } else { // Identificador já existe, adiciona nova linha
-        LineList t = l->lines;
-        while (t->next != NULL) t = t->next;
-        t->next = (LineList)malloc(sizeof(struct LineListRec));
-        t->next->line_number = line_number;
-        t->next->next = NULL;
+    
+    if (t->nodekind == statementK && t->kind.stmt == variableK) {
+        // Insere declaração de variável
+        insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
+    }
+    
+    if (t->nodekind == statementK && t->kind.stmt == arrayK) {
+        // Insere declaração de vetor
+        insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
+    }
+    
+    if (t->nodekind == statementK && t->kind.stmt == paramK) {
+        // Insere parâmetro
+        insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
+    }
+    
+    if (t->nodekind == statementK && t->kind.stmt == callK) {
+        // Insere chamada (se necessário – geralmente, chamadas não são inseridas, mas depende da implementação)
+        insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
+    }
+    
+    if (t->nodekind == statementK && t->kind.stmt == ifK) {
+        // Para blocos de if, cria um novo escopo
+        enterScope("Bloco");
     }
 }
 

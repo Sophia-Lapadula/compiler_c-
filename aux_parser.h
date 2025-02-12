@@ -1,6 +1,6 @@
 #ifndef AUX_PARSER_H
 #define AUX_PARSER_H
-
+#include "symtab.h"
 
 // Function prototypes from aux_parser.c
 void aggScope(TreeNode *t, char *scope);

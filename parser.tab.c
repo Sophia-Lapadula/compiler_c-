@@ -68,21 +68,24 @@
 /* First part of user prologue.  */
 #line 1 "parser.y"
 
-# define YYPARSER  
-# define YYSTYPE TreeNode*
+#define YYPARSER
+#define YYSTYPE TreeNode*
 
-# include "globals.h"
-# include "aux_scanner.h"
-# include "aux_parser.h"
+#include "globals.h"
+#include "aux_scanner.h"
+#include "aux_parser.h"
+#include "symtab.h"
 #include "util.h"
 
-
-static TreeNode * savedTree;   
+static TreeNode *savedTree;
 static int yylex(void);
 int Error;
-int yyerror(char*);
+int yyerror(char *);
 
-#line 86 "parser.tab.c"
+//currentScope = NULL; // Variável para o escopo atual
+
+
+#line 89 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -539,13 +542,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    29,    29,    34,    47,    52,    56,    61,    71,    81,
-      93,   108,   122,   126,   132,   145,   150,   161,   173,   186,
-     190,   194,   198,   211,   216,   229,   234,   238,   242,   246,
-     250,   255,   259,   263,   269,   278,   285,   290,   296,   302,
-     307,   311,   319,   325,   330,   336,   342,   348,   354,   360,
-     367,   373,   378,   383,   389,   395,   400,   405,   411,   415,
-     419,   423,   428,   435,   442,   455,   460,   466
+       0,    31,    31,    36,    48,    53,    57,    62,    69,    76,
+      85,    94,   104,   108,   115,   127,   132,   139,   147,   159,
+     163,   167,   172,   184,   189,   201,   206,   210,   214,   218,
+     222,   227,   231,   236,   243,   252,   260,   266,   273,   281,
+     286,   290,   299,   308,   313,   314,   315,   316,   317,   318,
+     320,   329,   334,   335,   337,   346,   351,   352,   354,   358,
+     362,   366,   371,   378,   385,   397,   402,   409
 };
 #endif
 
@@ -1419,686 +1422,638 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 30 "parser.y"
+#line 32 "parser.y"
                         {
                           savedTree = yyvsp[0];
                         }
-#line 1427 "parser.tab.c"
+#line 1430 "parser.tab.c"
     break;
 
   case 3:
-#line 35 "parser.y"
+#line 37 "parser.y"
                         {
-                            YYSTYPE t = yyvsp[-1];
-                            if(t != NULL)
-		   	  			    {
+                            TreeNode *t = yyvsp[-1];
+                            if(t != NULL) {
                                 while(t->sibling != NULL)
                                     t = t->sibling;
                                 t->sibling = yyvsp[0];
                                 yyval = yyvsp[-1];
-                            }
-                            else
+                            } else {
                                 yyval = yyvsp[0];
+                            }
                         }
-#line 1444 "parser.tab.c"
+#line 1446 "parser.tab.c"
     break;
 
   case 4:
-#line 48 "parser.y"
+#line 49 "parser.y"
                         {
                            yyval = yyvsp[0];
                         }
-#line 1452 "parser.tab.c"
+#line 1454 "parser.tab.c"
     break;
 
   case 5:
-#line 53 "parser.y"
+#line 54 "parser.y"
                         {
                            yyval = yyvsp[0];
                         }
-#line 1460 "parser.tab.c"
+#line 1462 "parser.tab.c"
     break;
 
   case 6:
-#line 57 "parser.y"
+#line 58 "parser.y"
                         {
                            yyval = yyvsp[0];
                         }
-#line 1468 "parser.tab.c"
+#line 1470 "parser.tab.c"
     break;
 
   case 7:
-#line 62 "parser.y"
-                        {	
-                        	yyval = newExpNode(typeK);
+#line 63 "parser.y"
+                        {
+                            yyval = newStmtNode(variableK);
                             yyval->type = integerK;
-                            yyval->attr.name = "integer";
-                            yyval->child[0] = yyvsp[-1];
-                            yyvsp[-1]->nodekind = statementK;
-                            yyvsp[-1]->kind.stmt = variableK;
-							yyvsp[-1]->type = integerK;
+                            yyval->attr.name = yyvsp[-1]->attr.name;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1482 "parser.tab.c"
+#line 1481 "parser.tab.c"
     break;
 
   case 8:
-#line 72 "parser.y"
-                        {	
-                        	yyval = newExpNode(typeK);
+#line 70 "parser.y"
+                        {
+                            yyval = newStmtNode(variableK);
                             yyval->type = voidK;
-                            yyval->attr.name = "void";
-                            yyval->child[0] = yyvsp[-1];
-                            yyvsp[-1]->nodekind = statementK;
-                            yyvsp[-1]->kind.stmt = variableK;
-							yyvsp[-1]->type = voidK;
+                            yyval->attr.name = yyvsp[-1]->attr.name;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1496 "parser.tab.c"
+#line 1492 "parser.tab.c"
     break;
 
   case 9:
-#line 82 "parser.y"
+#line 77 "parser.y"
                         {
-                        	yyval = newExpNode(typeK);
+                            yyval = newStmtNode(arrayK);
                             yyval->type = integerK;
-                            yyval->attr.name = "integer";
-                            yyval->child[0] = yyvsp[-4];
-                            yyvsp[-4]->nodekind = statementK;
-                            yyvsp[-4]->kind.stmt = arrayK;
-							yyvsp[-4]->type = integerK; 
-                            yyvsp[-4]->attr.len = yyvsp[-2]->attr.val;
+                            yyval->attr.name = yyvsp[-4]->attr.name;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
+                            yyval->attr.len = yyvsp[-2]->attr.val;
                         }
-#line 1511 "parser.tab.c"
+#line 1504 "parser.tab.c"
     break;
 
   case 10:
-#line 94 "parser.y"
+#line 86 "parser.y"
                         {
-                        	yyval = newExpNode(typeK);
+                            yyval = newStmtNode(functionK);
                             yyval->type = integerK;
-                            yyval->attr.name = "integer";
-                            yyval->child[0] = yyvsp[-4];
-                            yyvsp[-4]->child[0] = yyvsp[-2];
-                            yyvsp[-4]->child[1] = yyvsp[0];
-                            yyvsp[-4]->nodekind = statementK;
-                            yyvsp[-4]->kind.stmt = functionK;
-							yyvsp[-4]->type = integerK;
-							yyvsp[-2]->type = integerK;
-							aggScope(yyvsp[-4]->child[0], yyvsp[-4]->attr.name);
-							aggScope(yyvsp[-4]->child[1], yyvsp[-4]->attr.name);
+                            yyval->attr.name = yyvsp[-4]->attr.name;
+                            yyval->attr.scope = yyvsp[-4]->attr.name;
+                            yyval->child[0] = yyvsp[-2];
+                            yyval->child[1] = yyvsp[0];
+                        }
+#line 1517 "parser.tab.c"
+    break;
+
+  case 11:
+#line 95 "parser.y"
+                        {
+                            yyval = newStmtNode(functionK);
+                            yyval->type = voidK;
+                            yyval->attr.name = yyvsp[-4]->attr.name;
+                            yyval->attr.scope = yyvsp[-4]->attr.name;
+                            yyval->child[0] = yyvsp[-2];
+                            yyval->child[1] = yyvsp[0];
                         }
 #line 1530 "parser.tab.c"
     break;
 
-  case 11:
-#line 109 "parser.y"
-                        {
-                        	yyval = newExpNode(typeK);
-                            yyval->type = voidK;
-                            yyval->attr.name = "void";
-                            yyval->child[0] = yyvsp[-4];
-                            yyvsp[-4]->child[0] = yyvsp[-2];
-                            yyvsp[-4]->child[1] = yyvsp[0];
-                            yyvsp[-4]->nodekind = statementK;
-                            yyvsp[-4]->kind.stmt = functionK;
-							aggScope(yyvsp[-4]->child[0], yyvsp[-4]->attr.name);
-							aggScope(yyvsp[-4]->child[1], yyvsp[-4]->attr.name);
-                        }
-#line 1547 "parser.tab.c"
-    break;
-
   case 12:
-#line 123 "parser.y"
+#line 105 "parser.y"
                         {
                            yyval = yyvsp[0];
                         }
-#line 1555 "parser.tab.c"
+#line 1538 "parser.tab.c"
     break;
 
   case 13:
-#line 127 "parser.y"
+#line 109 "parser.y"
                         {
-						  yyval = newExpNode(typeK);
-           				  yyval->attr.name = "void";
-						}
-#line 1564 "parser.tab.c"
+                            yyval = newExpNode(typeK);
+                            yyval->attr.name = "void";
+                            yyval->type = voidK;
+                        }
+#line 1548 "parser.tab.c"
     break;
 
   case 14:
-#line 133 "parser.y"
+#line 116 "parser.y"
                         {
-                           YYSTYPE t = yyvsp[-2];
-                           if(t != NULL)
-						   {
-                              while(t->sibling != NULL)
-                                  t = t->sibling;
-                              t->sibling = yyvsp[0];
-                              yyval = yyvsp[-2];
+                            TreeNode *t = yyvsp[-2];
+                            if (t != NULL) {
+                                while (t->sibling != NULL)
+                                    t = t->sibling;
+                                t->sibling = yyvsp[0];
+                                yyval = yyvsp[-2];
+                            } else {
+                                yyval = yyvsp[0];
                             }
-                            else
-                              yyval = yyvsp[0];
                         }
-#line 1581 "parser.tab.c"
+#line 1564 "parser.tab.c"
     break;
 
   case 15:
-#line 146 "parser.y"
+#line 128 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1589 "parser.tab.c"
+#line 1572 "parser.tab.c"
     break;
 
   case 16:
-#line 151 "parser.y"
+#line 133 "parser.y"
                         {
-						   	
-                           yyval = newExpNode(typeK);
-					       yyvsp[0]->nodekind = statementK;
-                           yyvsp[0]->kind.stmt = paramK;
-                           yyval->type = integerK;
-						   yyvsp[0]->type = integerK; 	
-                           yyval->attr.name = "integer";
-                           yyval->child[0] = yyvsp[0];
+                            yyval = newStmtNode(paramK);
+                            yyval->type = integerK;
+                            yyval->attr.name = yyvsp[0]->attr.name;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1604 "parser.tab.c"
+#line 1583 "parser.tab.c"
     break;
 
   case 17:
-#line 162 "parser.y"
+#line 140 "parser.y"
                         {
-							
-                            yyval = newExpNode(typeK);
-							yyvsp[-2]->nodekind = statementK;
-                            yyvsp[-2]->kind.stmt = paramK;
+                            yyval = newStmtNode(paramK);
                             yyval->type = integerK;
-                            yyval->attr.name = "integer";
-                            yyval->child[0] = yyvsp[-2];
-						    yyvsp[-2]->type = integerK;
+                            yyval->attr.name = yyvsp[-2]->attr.name;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1619 "parser.tab.c"
+#line 1594 "parser.tab.c"
     break;
 
   case 18:
-#line 174 "parser.y"
+#line 148 "parser.y"
                         {
-                            YYSTYPE t = yyvsp[-2];
-                            if(t != NULL)
-						    {
-                               while(t->sibling != NULL)
-                                  t = t->sibling;
+                            TreeNode *t = yyvsp[-2];
+                            if (t != NULL) {
+                                while (t->sibling != NULL)
+                                    t = t->sibling;
                                 t->sibling = yyvsp[-1];
                                 yyval = yyvsp[-2];
+                            } else {
+                                yyval = yyvsp[-1];
                             }
-                            else
-                               yyval = yyvsp[-1];
                         }
-#line 1636 "parser.tab.c"
+#line 1610 "parser.tab.c"
     break;
 
   case 19:
-#line 187 "parser.y"
+#line 160 "parser.y"
                         {
                             yyval = yyvsp[-1];
                         }
-#line 1644 "parser.tab.c"
+#line 1618 "parser.tab.c"
     break;
 
   case 20:
-#line 191 "parser.y"
+#line 164 "parser.y"
                         {
                             yyval = yyvsp[-1];
                         }
-#line 1652 "parser.tab.c"
+#line 1626 "parser.tab.c"
     break;
 
   case 21:
-#line 195 "parser.y"
+#line 168 "parser.y"
                         {
-			   			}
-#line 1659 "parser.tab.c"
+                            yyval = NULL;
+                        }
+#line 1634 "parser.tab.c"
     break;
 
   case 22:
-#line 199 "parser.y"
+#line 173 "parser.y"
                         {
-                            YYSTYPE t = yyvsp[-1];
-                            if(t != NULL)
-							{
-                            	while(t->sibling != NULL)
-                                	 t = t->sibling;
-                             	t->sibling = yyvsp[0];
-                             	yyval = yyvsp[-1];
+                            TreeNode *t = yyvsp[-1];
+                            if (t != NULL) {
+                                while (t->sibling != NULL)
+                                    t = t->sibling;
+                                t->sibling = yyvsp[0];
+                                yyval = yyvsp[-1];
+                            } else {
+                                yyval = yyvsp[0];
                             }
-                            else
-                               yyval = yyvsp[0];
                         }
-#line 1676 "parser.tab.c"
+#line 1650 "parser.tab.c"
     break;
 
   case 23:
-#line 212 "parser.y"
+#line 185 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1684 "parser.tab.c"
+#line 1658 "parser.tab.c"
     break;
 
   case 24:
-#line 217 "parser.y"
+#line 190 "parser.y"
                         {
-                           YYSTYPE t = yyvsp[-1];
-                           if(t != NULL)
-						   {
-                              while(t->sibling != NULL)
-                                   t = t->sibling;
-                              t->sibling = yyvsp[0];
-                              yyval = yyvsp[-1];
-                           }
-                           else
-                             yyval = yyvsp[0];
+                            TreeNode *t = yyvsp[-1];
+                            if (t != NULL) {
+                                while (t->sibling != NULL)
+                                    t = t->sibling;
+                                t->sibling = yyvsp[0];
+                                yyval = yyvsp[-1];
+                            } else {
+                                yyval = yyvsp[0];
+                            }
                         }
-#line 1701 "parser.tab.c"
+#line 1674 "parser.tab.c"
     break;
 
   case 25:
-#line 230 "parser.y"
+#line 202 "parser.y"
                         {
-                           yyval = yyvsp[0];
+                            yyval = yyvsp[0];
                         }
-#line 1709 "parser.tab.c"
+#line 1682 "parser.tab.c"
     break;
 
   case 26:
-#line 235 "parser.y"
+#line 207 "parser.y"
                         {
-                           yyval = yyvsp[0];
+                            yyval = yyvsp[0];
                         }
-#line 1717 "parser.tab.c"
+#line 1690 "parser.tab.c"
     break;
 
   case 27:
-#line 239 "parser.y"
+#line 211 "parser.y"
                         {
-                           yyval = yyvsp[0];
+                            yyval = yyvsp[0];
                         }
-#line 1725 "parser.tab.c"
+#line 1698 "parser.tab.c"
     break;
 
   case 28:
-#line 243 "parser.y"
+#line 215 "parser.y"
                         {
-                           yyval = yyvsp[0];
+                            yyval = yyvsp[0];
                         }
-#line 1733 "parser.tab.c"
+#line 1706 "parser.tab.c"
     break;
 
   case 29:
-#line 247 "parser.y"
+#line 219 "parser.y"
                         {
-                           yyval = yyvsp[0];
+                            yyval = yyvsp[0];
                         }
-#line 1741 "parser.tab.c"
+#line 1714 "parser.tab.c"
     break;
 
   case 30:
-#line 251 "parser.y"
+#line 223 "parser.y"
                         {
-                           yyval = yyvsp[0];
+                            yyval = yyvsp[0];
+                        }
+#line 1722 "parser.tab.c"
+    break;
+
+  case 31:
+#line 228 "parser.y"
+                        {
+                            yyval = yyvsp[-1];
+                        }
+#line 1730 "parser.tab.c"
+    break;
+
+  case 32:
+#line 232 "parser.y"
+                        {
+                            yyval = NULL;
+                        }
+#line 1738 "parser.tab.c"
+    break;
+
+  case 33:
+#line 237 "parser.y"
+                        {
+                            yyval = newStmtNode(ifK);
+                            yyval->child[0] = yyvsp[-2];
+                            yyval->child[1] = yyvsp[0];
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
 #line 1749 "parser.tab.c"
     break;
 
-  case 31:
-#line 256 "parser.y"
-                        {
-                           yyval = yyvsp[-1];
-                        }
-#line 1757 "parser.tab.c"
-    break;
-
-  case 32:
-#line 260 "parser.y"
-                        {
-						}
-#line 1764 "parser.tab.c"
-    break;
-
-  case 33:
-#line 264 "parser.y"
-                        {
-                             yyval = newStmtNode(ifK);
-                             yyval->child[0] = yyvsp[-2];
-                             yyval->child[1] = yyvsp[0];
-                        }
-#line 1774 "parser.tab.c"
-    break;
-
   case 34:
-#line 270 "parser.y"
+#line 244 "parser.y"
                         {
-							 
-                             yyval = newStmtNode(ifK);
-                             yyval->child[0] = yyvsp[-4];
-                             yyval->child[1] = yyvsp[-2];
-                             yyval->child[2] = yyvsp[0];
+                            yyval = newStmtNode(ifK);
+                            yyval->child[0] = yyvsp[-4];
+                            yyval->child[1] = yyvsp[-2];
+                            yyval->child[2] = yyvsp[0];
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1786 "parser.tab.c"
+#line 1761 "parser.tab.c"
     break;
 
   case 35:
-#line 279 "parser.y"
+#line 253 "parser.y"
                         {
-                             yyval = newStmtNode(whileK);
-                             yyval->child[0] = yyvsp[-2];
-                             yyval->child[1] = yyvsp[0];
+                            yyval = newStmtNode(whileK);
+                            yyval->child[0] = yyvsp[-2];
+                            yyval->child[1] = yyvsp[0];
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1796 "parser.tab.c"
+#line 1772 "parser.tab.c"
     break;
 
   case 36:
-#line 286 "parser.y"
+#line 261 "parser.y"
                         {
                             yyval = newStmtNode(returnK);
-							yyval->type = voidK;
+                            yyval->type = voidK;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1805 "parser.tab.c"
+#line 1782 "parser.tab.c"
     break;
 
   case 37:
-#line 291 "parser.y"
+#line 267 "parser.y"
                         {
                             yyval = newStmtNode(returnK);
                             yyval->child[0] = yyvsp[-1];
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1814 "parser.tab.c"
+#line 1792 "parser.tab.c"
     break;
 
   case 38:
-#line 297 "parser.y"
-                       {
+#line 274 "parser.y"
+                        {
                             yyval = newStmtNode(assignK);
                             yyval->child[0] = yyvsp[-2];
                             yyval->child[1] = yyvsp[0];
-                       }
-#line 1824 "parser.tab.c"
+                            yyval->type = yyvsp[0]->type; // Propaga o tipo da expressão
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
+                        }
+#line 1804 "parser.tab.c"
     break;
 
   case 39:
-#line 303 "parser.y"
+#line 282 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1832 "parser.tab.c"
+#line 1812 "parser.tab.c"
     break;
 
   case 40:
-#line 308 "parser.y"
+#line 287 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1840 "parser.tab.c"
+#line 1820 "parser.tab.c"
     break;
 
   case 41:
-#line 312 "parser.y"
+#line 291 "parser.y"
                         {
                             yyval = yyvsp[-3];
                             yyval->child[0] = yyvsp[-1];
                             yyval->kind.exp = vectorK;
-							yyval->type = integerK;
+                            yyval->type = integerK; // Assume tipo inteiro para vetor
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1851 "parser.tab.c"
+#line 1832 "parser.tab.c"
     break;
 
   case 42:
-#line 320 "parser.y"
+#line 300 "parser.y"
                         {
-                            yyval = yyvsp[-1];
+                            yyval = newExpNode(operationK);
+                            yyval->attr.op = yyvsp[-1]->attr.op;
                             yyval->child[0] = yyvsp[-2];
                             yyval->child[1] = yyvsp[0];
+                            yyval->type = booleanK; // Tipo booleano para expressões relacionais
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1861 "parser.tab.c"
+#line 1845 "parser.tab.c"
     break;
 
   case 43:
-#line 326 "parser.y"
+#line 309 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1869 "parser.tab.c"
+#line 1853 "parser.tab.c"
     break;
 
   case 44:
-#line 331 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = EQ;  
-							yyval->type = booleanK;                          
-                        }
-#line 1879 "parser.tab.c"
+#line 313 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = EQ; yyval->type = booleanK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1859 "parser.tab.c"
     break;
 
   case 45:
-#line 337 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = NE;
-							yyval->type = booleanK;                            
-                        }
-#line 1889 "parser.tab.c"
+#line 314 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = NE; yyval->type = booleanK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1865 "parser.tab.c"
     break;
 
   case 46:
-#line 343 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = LT;                            
-							yyval->type = booleanK;
-                        }
-#line 1899 "parser.tab.c"
+#line 315 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = LT; yyval->type = booleanK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1871 "parser.tab.c"
     break;
 
   case 47:
-#line 349 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = LTE;                            
-							yyval->type = booleanK;
-                        }
-#line 1909 "parser.tab.c"
+#line 316 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = LTE; yyval->type = booleanK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1877 "parser.tab.c"
     break;
 
   case 48:
-#line 355 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = GT;                            
-							yyval->type = booleanK;
-                        }
-#line 1919 "parser.tab.c"
+#line 317 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = GT; yyval->type = booleanK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1883 "parser.tab.c"
     break;
 
   case 49:
-#line 361 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = GTE;                            
-							yyval->type = booleanK;
-                        }
-#line 1929 "parser.tab.c"
+#line 318 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = GTE; yyval->type = booleanK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1889 "parser.tab.c"
     break;
 
   case 50:
-#line 368 "parser.y"
+#line 321 "parser.y"
                         {
-                            yyval = yyvsp[-1];
+                            yyval = newExpNode(operationK);
+                            yyval->attr.op = yyvsp[-1]->attr.op;
                             yyval->child[0] = yyvsp[-2];
                             yyval->child[1] = yyvsp[0];
+                            yyval->type = integerK; // Tipo inteiro para soma
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1939 "parser.tab.c"
+#line 1902 "parser.tab.c"
     break;
 
   case 51:
-#line 374 "parser.y"
+#line 330 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1947 "parser.tab.c"
+#line 1910 "parser.tab.c"
     break;
 
   case 52:
-#line 379 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = PLUS;                            
-                        }
-#line 1956 "parser.tab.c"
+#line 334 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = PLUS; yyval->type = integerK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1916 "parser.tab.c"
     break;
 
   case 53:
-#line 384 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = MINUS;                            
-                        }
-#line 1965 "parser.tab.c"
+#line 335 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = MINUS; yyval->type = integerK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1922 "parser.tab.c"
     break;
 
   case 54:
-#line 390 "parser.y"
+#line 338 "parser.y"
                         {
-                            yyval = yyvsp[-1];
+                            yyval = newExpNode(operationK);
+                            yyval->attr.op = yyvsp[-1]->attr.op;
                             yyval->child[0] = yyvsp[-2];
                             yyval->child[1] = yyvsp[0];
+                            yyval->type = integerK; // Tipo inteiro para multiplicação/divisão
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 1975 "parser.tab.c"
+#line 1935 "parser.tab.c"
     break;
 
   case 55:
-#line 396 "parser.y"
+#line 347 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 1983 "parser.tab.c"
+#line 1943 "parser.tab.c"
     break;
 
   case 56:
-#line 401 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = TIMES;                            
-                        }
-#line 1992 "parser.tab.c"
+#line 351 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = TIMES; yyval->type = integerK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1949 "parser.tab.c"
     break;
 
   case 57:
-#line 406 "parser.y"
-                        {
-                            yyval = newExpNode(operationK);
-                            yyval->attr.op = DIVIDE;                            
-                        }
-#line 2001 "parser.tab.c"
+#line 352 "parser.y"
+                              { yyval = newExpNode(operationK); yyval->attr.op = DIVIDE; yyval->type = integerK; yyval->attr.scope = currentScope ? currentScope->name : "global"; }
+#line 1955 "parser.tab.c"
     break;
 
   case 58:
-#line 412 "parser.y"
+#line 355 "parser.y"
                         {
                             yyval = yyvsp[-1];
                         }
-#line 2009 "parser.tab.c"
+#line 1963 "parser.tab.c"
     break;
 
   case 59:
-#line 416 "parser.y"
+#line 359 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 2017 "parser.tab.c"
+#line 1971 "parser.tab.c"
     break;
 
   case 60:
-#line 420 "parser.y"
+#line 363 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 2025 "parser.tab.c"
+#line 1979 "parser.tab.c"
     break;
 
   case 61:
-#line 424 "parser.y"
+#line 367 "parser.y"
                         {
                             yyval = yyvsp[0];
                         }
-#line 2033 "parser.tab.c"
+#line 1987 "parser.tab.c"
     break;
 
   case 62:
-#line 429 "parser.y"
+#line 372 "parser.y"
                         {
-                            yyval = yyvsp[-3];
+                            yyval = newStmtNode(callK);
+                            yyval->attr.name = yyvsp[-3]->attr.name;
                             yyval->child[0] = yyvsp[-1];
-                            yyval->nodekind = statementK;
-                            yyval->kind.stmt = callK;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 2044 "parser.tab.c"
+#line 1998 "parser.tab.c"
     break;
 
   case 63:
-#line 436 "parser.y"
-                                            {
-                            yyval = yyvsp[-2];
-                            yyval->nodekind = statementK;
-                            yyval->kind.stmt = callK;
+#line 379 "parser.y"
+                        {
+                            yyval = newStmtNode(callK);
+                            yyval->attr.name = yyvsp[-2]->attr.name;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 2054 "parser.tab.c"
+#line 2008 "parser.tab.c"
     break;
 
   case 64:
-#line 443 "parser.y"
+#line 386 "parser.y"
                         {
-                            YYSTYPE t = yyvsp[-2];
-                             if(t != NULL)
-							 {
-                                while(t->sibling != NULL)
-                                   t = t->sibling;
-                                 t->sibling = yyvsp[0];
-                                 yyval = yyvsp[-2];
-                             }
-                             else
-                                 yyval = yyvsp[0];
+                            TreeNode *t = yyvsp[-2];
+                            if (t != NULL) {
+                                while (t->sibling != NULL)
+                                    t = t->sibling;
+                                t->sibling = yyvsp[0];
+                                yyval = yyvsp[-2];
+                            } else {
+                                yyval = yyvsp[0];
+                            }
                         }
-#line 2071 "parser.tab.c"
+#line 2024 "parser.tab.c"
     break;
 
   case 65:
-#line 456 "parser.y"
+#line 398 "parser.y"
                         {
-                             yyval = yyvsp[0];
+                            yyval = yyvsp[0];
                         }
-#line 2079 "parser.tab.c"
+#line 2032 "parser.tab.c"
     break;
 
   case 66:
-#line 461 "parser.y"
+#line 403 "parser.y"
                         {
-                             yyval = newExpNode(idK);
-                             yyval->attr.name = copyString(tokenBuffer);
+                            yyval = newExpNode(idK);
+                            yyval->attr.name = copyString(tokenBuffer);
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
                         }
-#line 2088 "parser.tab.c"
+#line 2042 "parser.tab.c"
     break;
 
   case 67:
-#line 467 "parser.y"
+#line 410 "parser.y"
                         {
-                             yyval = newExpNode(constantK);
-                             yyval->attr.val = atoi(tokenBuffer);
-							 yyval->type = integerK;
-						}
-#line 2098 "parser.tab.c"
+                            yyval = newExpNode(constantK);
+                            yyval->attr.val = atoi(tokenBuffer);
+                            yyval->type = integerK;
+                            yyval->attr.scope = currentScope ? currentScope->name : "global";
+                        }
+#line 2053 "parser.tab.c"
     break;
 
 
-#line 2102 "parser.tab.c"
+#line 2057 "parser.tab.c"
 
       default: break;
     }
@@ -2330,7 +2285,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 473 "parser.y"
+#line 417 "parser.y"
 
 
 int yyerror(char* message) {
@@ -2346,6 +2301,7 @@ static int yylex(void) {
 }
 
 TreeNode* parse(void) {
+    currentScope = NULL; // Inicializa o escopo global
     yyparse();
     return savedTree;
 }

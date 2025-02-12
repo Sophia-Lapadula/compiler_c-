@@ -34,9 +34,9 @@ typedef struct BucketListRec {
  * - Cada escopo tem um nome (`name`) e um ponteiro para o escopo pai (`parent`).
  * - Contém uma tabela hash para armazenar símbolos dentro do escopo.
  */
-typedef struct ScopeRec {
+typedef struct Scope {
     char *name;                 // Nome do escopo (ex.: nome da função)
-    struct ScopeRec *parent;    // Ponteiro para o escopo pai (escopo superior)
+    struct Scope *parent;    // Ponteiro para o escopo pai (escopo superior)
     BucketList hashTable[211];  // Tabela hash para armazenar símbolos no escopo
 } *Scope;
 

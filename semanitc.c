@@ -1,10 +1,11 @@
-#include "semantic.h"
-#include "symtab.h"
 #include "globals.h"
+#include "symtab.h"
+
+
 
 // ========================== CONTROLE DE ESCOPO ==========================
 // Estrutura que mantém o escopo atual
-Scope currentScope = NULL;
+//Scope currentScope = NULL;
 
 // Variáveis globais para rastrear a função atual
 ExpressionType currentFunctionType;  // Tipo da função atual (Integer, Void)
@@ -34,31 +35,38 @@ static void traverse(TreeNode *t, void (*preProc)(TreeNode *), void (*postProc)(
  * - Registra variáveis e funções.
  * - Atualiza o escopo ao entrar em funções ou blocos `{}`.
  */
-static void insertNode(TreeNode *t) {
-    if (t->nodekind == statementK) {
-        if (t->kind.stmt == functionK) {
-            insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
-
-            // Se for uma função, atualiza o escopo
-            enterScope(t->attr.name); // Entramos no escopo da função
-            currentFunctionType = t->type;
-            currentFunctionName = t->attr.name;
-        }
-    } 
-    else if (t->nodekind == statementK && t->kind.stmt == variableK) {
+ static void insertNode(TreeNode *t) {
+    if (t->nodekind == statementK && t->kind.stmt == functionK) {
+        // Insere a função no escopo atual e entra no novo escopo da função
+        insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
+        enterScope(t->attr.name); // Agora o escopo corrente é o da função
+        currentFunctionType = t->type;
+        currentFunctionName = t->attr.name;
+    }
+    
+    if (t->nodekind == statementK && t->kind.stmt == variableK) {
+        // Insere declaração de variável
         insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
     }
-    else if (t->nodekind == statementK && t->kind.stmt == arrayK) {
+    
+    if (t->nodekind == statementK && t->kind.stmt == arrayK) {
+        // Insere declaração de vetor
         insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
     }
-    else if (t->nodekind == statementK && t->kind.stmt == paramK) {
+    
+    if (t->nodekind == statementK && t->kind.stmt == paramK) {
+        // Insere parâmetro
         insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
     }
-    else if (t->nodekind == statementK && t->kind.stmt == callK) {
+    
+    if (t->nodekind == statementK && t->kind.stmt == callK) {
+        // Insere chamada (se necessário – geralmente, chamadas não são inseridas, mas depende da implementação)
         insertSymbol(t->attr.name, t->line_number, t->nodekind, t->type);
     }
-    else if (t->nodekind == statementK && t->kind.stmt == ifK) {
-        enterScope("Bloco"); // Blocos `{}` criam novo escopo
+    
+    if (t->nodekind == statementK && t->kind.stmt == ifK) {
+        // Para blocos de if, cria um novo escopo
+        enterScope("global");
     }
 }
 
@@ -116,6 +124,15 @@ void checkReturn(TreeNode *t) {
     }
 }
 
+
+static void leaveScopeNode(TreeNode *t) {
+    /* Se o nó criou um novo escopo, sai dele */
+    if (t->nodekind == statementK &&
+        (t->kind.stmt == functionK || t->kind.stmt == ifK)) {
+        leaveScope();
+    }
+}
+
 // ========================== EXECUTAR ANÁLISE SEMÂNTICA ==========================
 
 /**
@@ -125,8 +142,12 @@ void checkReturn(TreeNode *t) {
  * - Chamadas de função.
  * - Retornos de função.
  */
-void analyze(TreeNode *syntaxTree) {
-    traverse(syntaxTree, insertNode, checkNode);
+ void analyze(TreeNode *syntaxTree) {
+    enterScope("global");  // Cria o escopo global
+    /* Primeira travessia: insere os símbolos e trata o controle de escopo */
+    traverse(syntaxTree, insertNode, leaveScopeNode);
+    /* Outras travessias para verificações semânticas (sem alteração de escopo) */
+    traverse(syntaxTree, checkNode, NULL);
     traverse(syntaxTree, checkType, NULL);
     traverse(syntaxTree, checkFunctionCall, NULL);
     traverse(syntaxTree, checkReturn, NULL);

@@ -118,7 +118,6 @@ void printTree(TreeNode *tree) {
 }
 
 
-
 void freeTree(TreeNode *tree) {
     int i;
     if (tree != NULL) {

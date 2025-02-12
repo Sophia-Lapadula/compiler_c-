@@ -1,6 +1,7 @@
+
 #include "util.h"
 
-
+Scope currentScope = NULL;
 /* Cria um novo nó de declaração */
 TreeNode *newStmtNode(StatementKind kind) {
     TreeNode *t = (TreeNode *)malloc(sizeof(TreeNode));
