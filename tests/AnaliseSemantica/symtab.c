@@ -1,94 +1,115 @@
 #include "symtab.h"
 
 #define SIZE 211  // Tamanho da tabela hash 
-#define SHIFT 4   // Valor de shift para a função hash - distribuição das chaves
+#define SHIFT 4   // Valor de shift para a função hash - melhora a distribuição das chaves
 
 // ========================== DEFINIÇÃO DE ESTRUTURAS ==========================
 
-// Definição da estrutura dos buckets (entrada da tabela de símbolos)
+// Estrutura para armazenar a lista de números de linha onde um identificador aparece
+typedef struct LineListRec {
+    int lineno;               // Número da linha onde o identificador foi usado
+    struct LineListRec *next; // Próxima ocorrência na lista
+} *LineList;
+
+// Estrutura dos buckets (entrada da tabela de símbolos)
 typedef struct BucketListRec {
-    char *name;    // Nome do identificador (string)
-    int lineno;    // Número da linha onde o identificador foi declarado no código-fonte
-    NodeKind kind; // Tipo do nó AST associado (ex: variável, função) - definido em symtab.h
-    ExpType type;  // Tipo de dado do identificador (ex: int, float, etc.) - definido em symtab.h
-    struct BucketListRec *next; // Ponteiro para o próximo nó na lista encadeada (para tratamento de colisões)
-} *BucketList; // BucketList é um ponteiro para struct BucketListRec (sinônimo para facilitar a leitura)
+    char *name;         // Nome do identificador (ex.: variável ou função)
+    NodeKind kind;      // Tipo do nó AST (ex.: DeclK para variáveis/funções)
+    ExpType type;       // Tipo do identificador (ex.: Integer, Void)
+    LineList lines;     // Lista de todas as linhas onde o identificador aparece
+    struct BucketListRec *next; // Próximo nó na lista encadeada (para colisões)
+} *BucketList;
 
 // Estrutura de escopo para suportar variáveis locais
 typedef struct ScopeRec {
     char *name;                 // Nome do escopo (ex.: nome da função)
     struct ScopeRec *parent;    // Ponteiro para o escopo pai (escopo superior)
     BucketList hashTable[SIZE]; // Tabela hash local para armazenar símbolos deste escopo
-} *Scope; // Scope é um ponteiro para struct ScopeRec
+} *Scope;
 
 // ========================== VARIÁVEIS GLOBAIS ==========================
 
-// Escopo atual da análise semântica (usado para manipular blocos aninhados e funções)
+// Escopo atual da análise semântica (controla variáveis locais e funções)
 Scope currentScope = NULL;  
 
 // ========================== FUNÇÃO HASH ==========================
-// Função hash: converte um nome de identificador (string) em um índice na tabela hash.
+// Gera um índice na tabela hash a partir do nome do identificador
 static int hash(char *key) {
-    int temp = 0;  // Valor hash temporário
-    int i = 0;     // Índice para iterar sobre a string key
-    while (key[i] != '\0') { // Loop através de cada caractere da string
-        // Calcula o valor hash usando um esquema de deslocamento e adição
-        temp = ((temp << SHIFT) + key[i]) % SIZE;
-        ++i; // Avança para o próximo caractere
+    int temp = 0;
+    int i = 0;
+    while (key[i] != '\0') { // Percorre cada caractere da string
+        temp = ((temp << SHIFT) + key[i]) % SIZE; // Aplica deslocamento e soma
+        ++i;
     }
-    return temp; // Retorna o valor hash calculado (um índice na tabela hash)
+    return temp;
 }
 
 // ========================== CONTROLE DE ESCOPO ==========================
-// Cria um novo escopo e o define como o escopo atual
+// Entra em um novo escopo (por exemplo, ao iniciar uma função)
 void enterScope(char *name) {
     Scope newScope = (Scope) malloc(sizeof(struct ScopeRec));
-    newScope->name = name;
+    newScope->name = strdup(name); // Nome do escopo
     newScope->parent = currentScope; // Aponta para o escopo anterior
     currentScope = newScope; // Atualiza o escopo atual
 }
 
-// Sai do escopo atual e retorna para o escopo superior
+// Sai do escopo atual e retorna ao escopo superior
 void leaveScope() {
     if (currentScope != NULL) {
-        currentScope = currentScope->parent; // Retorna ao escopo anterior
+        currentScope = currentScope->parent; // Volta ao escopo anterior
     }
 }
 
 // ========================== INSERÇÃO NA TABELA DE SÍMBOLOS ==========================
-// Insere um novo identificador no escopo atual
+// Insere um novo identificador na tabela de símbolos do escopo atual
 void insertSymbol(char *name, int lineno, NodeKind kind, ExpType type) {
     if (currentScope == NULL) {
         fprintf(stderr, "Erro: Nenhum escopo ativo para inserir '%s'.\n", name);
         return;
     }
 
-    int h = hash(name); // Calcula o valor hash do nome do identificador
-    BucketList l = currentScope->hashTable[h]; // Obtém a lista encadeada correspondente ao hash
+    int h = hash(name); // Calcula o índice hash
+    BucketList l = currentScope->hashTable[h]; // Acessa o bucket correspondente
 
-    // Procura na lista encadeada do escopo atual para evitar duplicação
+    // Verifica se o identificador já existe no escopo atual
     while ((l != NULL) && (strcmp(name, l->name) != 0))
-        l = l->next; // Avança para o próximo nó na lista encadeada
+        l = l->next;
 
-    if (l == NULL) { // Se o símbolo não foi encontrado no escopo atual, insere
+    if (l == NULL) { // Se o símbolo não existe, cria um novo nó
         l = (BucketList) malloc(sizeof(struct BucketListRec));
-        l->name = strdup(name); // Cria uma cópia do nome do identificador
-        l->lineno = lineno; // Registra a linha da declaração
+        l->name = strdup(name); // Copia o nome do identificador
         l->kind = kind; // Define o tipo do nó AST
-        l->type = type; // Define o tipo de dado
-        l->next = currentScope->hashTable[h]; // Insere no início da lista encadeada
-        currentScope->hashTable[h] = l; // Atualiza a tabela hash do escopo
+        l->type = type; // Define o tipo do identificador
+        l->lines = (LineList) malloc(sizeof(struct LineListRec)); // Cria a primeira entrada na lista de linhas
+        l->lines->lineno = lineno;
+        l->lines->next = NULL;
+        l->next = currentScope->hashTable[h]; // Adiciona ao início da lista encadeada
+        currentScope->hashTable[h] = l;
     } else {
         // Se o símbolo já existe no mesmo escopo, exibe erro
         fprintf(stderr, "Erro: Identificador duplicado '%s' na linha %d.\n", name, lineno);
     }
 }
 
+// ========================== REGISTRO DE USO DE IDENTIFICADORES ==========================
+// Adiciona um número de linha ao identificador já existente na tabela de símbolos
+void addLineNumber(char *name, int lineno) {
+    BucketList l = lookupSymbol(name);
+    if (l != NULL) {
+        LineList temp = l->lines;
+        while (temp->next != NULL) // Percorre até o final da lista
+            temp = temp->next;
+        temp->next = (LineList) malloc(sizeof(struct LineListRec));
+        temp->next->lineno = lineno;
+        temp->next->next = NULL;
+    }
+}
+
 // ========================== BUSCA NA TABELA DE SÍMBOLOS ==========================
 // Procura um identificador na tabela de símbolos, verificando escopos superiores
 TreeNode* lookupSymbol(char *name) {
-    Scope s = currentScope; // Começa a busca no escopo atual
-    while (s != NULL) { // Percorre os escopos superiores até o global
+    Scope s = currentScope; // Começa no escopo atual
+    while (s != NULL) { // Percorre escopos superiores até o global
         int h = hash(name);
         BucketList l = s->hashTable[h];
 
@@ -103,19 +124,28 @@ TreeNode* lookupSymbol(char *name) {
 }
 
 // ========================== IMPRESSÃO DA TABELA DE SÍMBOLOS ==========================
-// Imprime a tabela de símbolos, incluindo escopos locais e globais
+// Imprime a tabela de símbolos, incluindo todas as linhas onde um identificador aparece
 void printSymbolTable() {
     Scope s = currentScope; // Começa no escopo atual
     while (s != NULL) { // Percorre todos os escopos existentes
         fprintf(listing, "\nEscopo: %s\n", s->name);
-        fprintf(listing, "Nome\tLinha\tTipo\n");
+        fprintf(listing, "Nome\tLinhas\tTipo\n");
         fprintf(listing, "--------------------------\n");
 
         for (int i = 0; i < SIZE; i++) { // Percorre os buckets da tabela hash
             if (s->hashTable[i] != NULL) { // Se houver símbolos no bucket
                 BucketList l = s->hashTable[i];
                 while (l != NULL) { // Percorre a lista encadeada
-                    fprintf(listing, "%s\t%d\t%d\n", l->name, l->lineno, l->type);
+                    fprintf(listing, "%s\t", l->name);
+
+                    // Percorre a lista de números de linha
+                    LineList temp = l->lines;
+                    while (temp != NULL) {
+                        fprintf(listing, "%d ", temp->lineno);
+                        temp = temp->next;
+                    }
+
+                    fprintf(listing, "\t%d\n", l->type);
                     l = l->next;
                 }
             }

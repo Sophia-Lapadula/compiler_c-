@@ -1,72 +1,72 @@
 #include "semantic.h"
 #include "symtab.h"
-#include "symtab.c"
 
-// Controle do escopo atual
-typedef struct ScopeRec {
-    char *name;           // Nome do escopo (ex.: função)
-    struct ScopeRec *parent; // Escopo pai
-} *Scope;
+// ========================== CONTROLE DE ESCOPO ==========================
+// Estrutura que mantém o escopo atual
+Scope currentScope = NULL;
 
-Scope currentScope = NULL;  // Escopo global
-ExpType currentFunctionType; // Tipo da função atual
-char *currentFunctionName;   // Nome da função atual
+// Variáveis globais para rastrear a função atual
+ExpType currentFunctionType;  // Tipo da função atual (Integer, Void)
+char *currentFunctionName;    // Nome da função atual
 
-// ========================= CONTROLE DE ESCOPO =========================
-// Entra em um novo escopo (ex.: início de uma função ou bloco {})
-void enterScope(char *name) {
-    Scope newScope = (Scope) malloc(sizeof(struct ScopeRec));
-    newScope->name = name;
-    newScope->parent = currentScope;
-    currentScope = newScope;
-}
+// ========================== PERCORRER A ÁRVORE ==========================
 
-// Sai do escopo atual
-void leaveScope() {
-    if (currentScope != NULL) {
-        currentScope = currentScope->parent;
-    }
-}
-
-// ========================= PERCORRER A ÁRVORE =========================
-// Função recursiva para percorrer a árvore sintática e aplicar funções
+/**
+ * Percorre a árvore sintática aplicando duas funções:
+ * - `preProc()`: Executada antes de processar os filhos (ex.: inserir na tabela de símbolos).
+ * - `postProc()`: Executada depois dos filhos (ex.: verificar identificadores).
+ */
 static void traverse(TreeNode *t, void (*preProc)(TreeNode *), void (*postProc)(TreeNode *)) {
     if (t != NULL) {
-        preProc(t); // Processa antes dos filhos (ex.: inserir na tabela)
+        preProc(t); // Executa a função de pré-processamento
         for (int i = 0; i < MAXCHILDREN; i++) 
-            traverse(t->child[i], preProc, postProc);
-        postProc(t); // Processa após os filhos (ex.: verificar identificadores)
-        traverse(t->sibling, preProc, postProc);
+            traverse(t->child[i], preProc, postProc); // Percorre os filhos do nó
+        postProc(t); // Executa a função de pós-processamento
+        traverse(t->sibling, preProc, postProc); // Percorre os nós irmãos
     }
 }
 
-// ========================= INSERÇÃO NA TABELA DE SÍMBOLOS =========================
-// Registra variáveis e funções na tabela de símbolos
+// ========================== INSERÇÃO NA TABELA DE SÍMBOLOS ==========================
+
+/**
+ * Insere identificadores na tabela de símbolos durante a criação da árvore sintática.
+ * - Registra variáveis e funções.
+ * - Atualiza o escopo ao entrar em funções ou blocos `{}`.
+ */
 static void insertNode(TreeNode *t) {
     if (t->nodeKind == DeclK) {
         insertSymbol(t->attr_name, t->lineno, t->nodeKind, t->type);
 
+        // Se for uma função, atualiza o escopo
         if (t->kind.decl == FunK) {
             enterScope(t->attr_name); // Entramos no escopo da função
             currentFunctionType = t->type;
             currentFunctionName = t->attr_name;
         }
-    } else if (t->nodeKind == StmtK && t->kind.stmt == CompK) {
-        enterScope("Bloco"); // Blocos compostos ({ }) criam novo escopo
+    } 
+    else if (t->nodeKind == StmtK && t->kind.stmt == CompK) {
+        enterScope("Bloco"); // Blocos `{}` criam novo escopo
     }
 }
 
-// ========================= VERIFICAÇÕES SEMÂNTICAS =========================
-// Verifica se identificadores usados estão declarados
+// ========================== VERIFICAÇÕES SEMÂNTICAS ==========================
+
+/**
+ * Verifica se identificadores usados estão declarados e adiciona o número da linha.
+ */
 static void checkNode(TreeNode *t) {
     if (t->nodeKind == ExpK && t->kind.exp == IdK) {
         if (lookupSymbol(t->attr_name) == NULL) {
             fprintf(stderr, "Erro: Identificador não declarado '%s' na linha %d\n", t->attr_name, t->lineno);
+        } else {
+            addLineNumber(t->attr_name, t->lineno); // Registra o uso do identificador
         }
     }
 }
 
-// Verifica se os tipos estão corretos em operações matemáticas
+/**
+ * Verifica se os tipos estão corretos em expressões matemáticas e atribuições.
+ */
 static void checkType(TreeNode *t) {
     if (t->nodeKind == ExpK && t->kind.exp == OpK) {
         TreeNode *left = t->child[0];
@@ -78,29 +78,40 @@ static void checkType(TreeNode *t) {
     }
 }
 
-// Verifica chamadas de função (argumentos corretos)
+/**
+ * Verifica chamadas de função (número e tipo de argumentos).
+ */
 static void checkFunctionCall(TreeNode *t) {
     if (t->nodeKind == ExpK && t->kind.exp == IdK) {
         BucketList func = lookupSymbol(t->attr_name);
         if (func == NULL || func->kind != FunK) {
-            fprintf(stderr, "Erro: função '%s' não declarada na linha %d.\n", t->attr_name, t->lineno);
+            fprintf(stderr, "Erro: Função '%s' não declarada na linha %d.\n", t->attr_name, t->lineno);
         } else {
             // (Futuro) Verificar número e tipos de argumentos
         }
     }
 }
 
-// Verifica retornos de função
+/**
+ * Verifica se funções retornam um valor adequado ao seu tipo declarado.
+ */
 static void checkReturn(TreeNode *t) {
     if (t->nodeKind == StmtK && t->kind.stmt == ReturnK) {
         if (currentFunctionType == Integer && t->child[0] == NULL) {
-            fprintf(stderr, "Erro na linha %d: função '%s' deve retornar um inteiro.\n", t->lineno, currentFunctionName);
+            fprintf(stderr, "Erro na linha %d: Função '%s' deve retornar um inteiro.\n", t->lineno, currentFunctionName);
         }
     }
 }
 
-// ========================= EXECUTAR ANÁLISE SEMÂNTICA =========================
-// Percorre a árvore e aplica verificações semânticas
+// ========================== EXECUTAR ANÁLISE SEMÂNTICA ==========================
+
+/**
+ * Inicia a análise semântica, percorrendo a árvore sintática e verificando:
+ * - Declaração e uso de identificadores.
+ * - Tipos de variáveis e expressões.
+ * - Chamadas de função.
+ * - Retornos de função.
+ */
 void analyze(TreeNode *syntaxTree) {
     traverse(syntaxTree, insertNode, checkNode);
     traverse(syntaxTree, checkType, NULL);
