@@ -14,17 +14,10 @@ typedef struct LineListRec {
     struct LineListRec *next; // Próxima ocorrência na lista
 } *LineList;
 
-/**
- * Estrutura da tabela de símbolos (entrada para cada identificador).
- * Cada identificador tem:
- * - Nome (`name`)
- * - Tipo (`kind`): variável, função, etc.
- * - Tipo de dado (`type`): int, void, etc.
- * - Lista de todas as linhas onde o identificador foi usado (`lines`)
- * - Ponteiro para resolver colisões na tabela hash (`next`)
- */
+
+ // Estrutura da tabela de símbolos 
 typedef struct BucketListRec {
-    char *name;         // Nome do identificador (ex.: variável ou função)
+    char *name;         // Nome do identificador 
     NodeKind kind;      // Tipo do nó AST (ex.: DeclK para variáveis/funções)
     ExpType type;       // Tipo do identificador (ex.: Integer, Void)
     LineList lines;     // Lista encadeada de todas as linhas onde o identificador aparece
