@@ -1,10 +1,8 @@
 #include "globals.h"
-#include "aux_scanner.h" 
+#include "aux_scanner.h"
 #include "util.h"
 
 void printToken(TokenType token, const char *tokenString) {
-
-    
     switch (token) {
         case IF:
             fprintf(listing, "Reserved Word: %s\n", tokenString);

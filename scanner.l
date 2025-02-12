@@ -44,8 +44,8 @@ whitespace  [ \t\r]+
 ")"             {return RPAREN;}
 ";"             {return SEMI;}
 ","		        {return COMMA;}
-{number} { return NUM;}
-{identifier} { return ID;}
+{number}        { return NUM;}
+{identifier}    { return ID;}
 {newline}       {line_number++;}
 {whitespace}    {         }
 .               {return ERROR;}
@@ -70,4 +70,3 @@ TokenType getToken(void) {
     
     return currentToken;
 }
-

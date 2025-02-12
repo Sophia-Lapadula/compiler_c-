@@ -2,20 +2,6 @@
 #include "aux_parser.h"
 #include "util.h"
 
-
-/* Função que propaga um escopo para toda a árvore */
-void aggScope(TreeNode *t, char *scope) {
-    int i;
-    while (t != NULL) {
-        for (i = 0; i < MAXCHILDREN; ++i) {
-            t->attr.scope = scope;
-            aggScope(t->child[i], scope);
-        }
-        t = t->sibling;
-    }
-}
-
-
 /* Função que cria uma cópia de uma string */
 char *copyString(char *s) {
     int n;
@@ -60,19 +46,19 @@ void printTree(TreeNode *tree) {
                     fprintf(listing, "While\n");
                     break;
                 case variableK:
-                    fprintf(listing, "Variable %s\n", tree->attr.name);
+                    fprintf(listing, "Variable %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case arrayK:
-                    fprintf(listing, "Array %s\n", tree->attr.name);
+                    fprintf(listing, "Array %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case paramK:
-                    fprintf(listing, "Param %s\n", tree->attr.name);
+                    fprintf(listing, "Param %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case functionK:
-                    fprintf(listing, "Function %s\n", tree->attr.name);
+                    fprintf(listing, "Function %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case callK:
-                    fprintf(listing, "Call to Function %s\n", tree->attr.name);
+                    fprintf(listing, "Call to Function %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case returnK:
                     fprintf(listing, "Return\n");
@@ -81,34 +67,33 @@ void printTree(TreeNode *tree) {
                     fprintf(listing, "Unknown statement kind\n");
                     break;
             }
-        }
-        else if (tree->nodekind == expressionK) {
+        } else if (tree->nodekind == expressionK) {
             switch (tree->kind.exp) {
                 case operationK:
                     fprintf(listing, "Operation: ");
                     printToken(tree->attr.op, "\0");
+                    fprintf(listing, "[%s]\n", tree->attr.scope);
                     break;
                 case constantK:
-                    fprintf(listing, "Constant: %d\n", tree->attr.val);
+                    fprintf(listing, "Constant: %d [%s]\n", tree->attr.val, tree->attr.scope);
                     break;
                 case idK:
-                    fprintf(listing, "Id: %s\n", tree->attr.name);
+                    fprintf(listing, "Id: %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case vectorK:
-                    fprintf(listing, "Vector: %s\n", tree->attr.name);
+                    fprintf(listing, "Vector: %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 case vectorIdK:
-                    fprintf(listing, "Index [%d]\n", tree->attr.val);
+                    fprintf(listing, "Index [%d] [%s]\n", tree->attr.val, tree->attr.scope);
                     break;
                 case typeK:
-                    fprintf(listing, "Type %s\n", tree->attr.name);
+                    fprintf(listing, "Type %s [%s]\n", tree->attr.name, tree->attr.scope);
                     break;
                 default:
                     fprintf(listing, "Unknown expression kind\n");
                     break;
             }
-        }
-        else
+        } else
             fprintf(listing, "Unknown node kind\n");
         for (i = 0; i < MAXCHILDREN; i++)
             printTree(tree->child[i]);
@@ -116,8 +101,6 @@ void printTree(TreeNode *tree) {
     }
     UNINDENT;
 }
-
-
 
 void freeTree(TreeNode *tree) {
     int i;

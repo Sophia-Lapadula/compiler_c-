@@ -5,6 +5,7 @@
 // Variável global para o escopo atual
 extern Scope currentScope;
 static BucketList hashTable[SIZE];
+
 // Função hash para calcular o índice na tabela hash
 static int hash(char *key) {
     int temp = 0;
@@ -75,18 +76,17 @@ BucketList lookupSymbol(char *name) {
     return NULL;
 }
 
-
-
 /* Exibe a tabela de símbolos */
 void printSymbolTable() {
     Scope sc = currentScope;
     while (sc != NULL) {
+        fprintf(listing, "Scope: %s\n", sc->name);
         for (int i = 0; i < 211; ++i) {
             BucketList l = sc->hashTable[i];
             while (l != NULL) {
                 LineList lines = l->lines;
                 while (lines != NULL) {
-                    fprintf(listing, "%s\t%d\t%d\n", l->name, lines->line_number, l->kind);
+                    fprintf(listing, "\t%s\t%d\t%d\n", l->name, lines->line_number, l->kind);
                     lines = lines->next;
                 }
                 l = l->next;
