@@ -81,6 +81,4 @@ extern int Error;
 TreeNode * parse(void);
 
 
-
-
 #endif /* GLOBALS_H */

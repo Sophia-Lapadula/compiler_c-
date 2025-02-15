@@ -45,7 +45,7 @@ TreeNode *newExpNode(ExpressionIdentifier kind) {
         t->nodekind = expressionK;
         t->kind.exp = kind;
         t->line_number = line_number;
-        t->type = voidK;
+        t->type = VOID;
         t->attr.scope = "global";
     }
     return t;

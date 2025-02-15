@@ -1,6 +1,7 @@
 #include "globals.h"   /* Header gerado pelo Bison (declara a função parse) */
 #include "aux_parser.h" /* Funções auxiliares para a construção da árvore sintática */
 #include "aux_scanner.h" /* Funções auxiliares para o scanner */
+# include "analyze.h"
 
 
 /* Definição das variáveis globais */
@@ -37,7 +38,10 @@ int main(int argc, char *argv[]) {
    
     fprintf(listing, "\nSyntax tree:\n");
     printTree(syntaxTree);
-    
+    fprintf(listing, "\nBuilding Symbol Table...\n");
+    buildSymtab(syntaxTree);
+    fprintf(listing, "\nChecking Types...\n");
+    typeCheck(syntaxTree);
     fclose(source);
     return 0;
 }
