@@ -5,7 +5,7 @@ char tokenBuffer[MAX_TOKEN_LENGHT +1];
 %}
 
 %option noyywrap
-%x comment_state
+%x in_comment
 digit       [0-9]
 number      {digit}+
 letter      [a-zA-Z]
@@ -14,11 +14,11 @@ newline     \n
 whitespace  [ \t\r]+
 
 %%
-"/*"						BEGIN(comment_state);
-<comment_state>[^*\n]*
-<comment_state>"*"+[^*/\n]*
-<comment_state>\n			line_number++;
-<comment_state>"*/"			BEGIN(INITIAL);
+"/*"						BEGIN(in_comment);
+<in_comment>[^*\n]*
+<in_comment>"*"+[^*/\n]*
+<in_comment>\n			line_number++;
+<in_comment>"*/"			BEGIN(INITIAL);
 "if"            {return IF;}
 "else"          {return ELSE;}
 "int"		    {return INT;}

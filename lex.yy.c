@@ -494,7 +494,7 @@ char tokenBuffer[MAX_TOKEN_LENGHT +1];
 #line 495 "lex.yy.c"
 
 #define INITIAL 0
-#define comment_state 1
+#define in_comment 1
 
 #ifndef YY_NO_UNISTD_H
 /* Special case for "unistd.h", since it is non-ANSI. We include it way
@@ -771,7 +771,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 17 "scanner.l"
-BEGIN(comment_state);
+BEGIN(in_comment);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
@@ -952,7 +952,7 @@ ECHO;
 	YY_BREAK
 #line 954 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
-case YY_STATE_EOF(comment_state):
+case YY_STATE_EOF(in_comment):
 	yyterminate();
 
 	case YY_END_OF_BUFFER:

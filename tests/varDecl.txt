@@ -1,0 +1,6 @@
+/* Erro de variável não declarada */
+
+void main (void) {
+	int x;
+    y = x;
+}

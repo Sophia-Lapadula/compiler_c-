@@ -31,17 +31,21 @@ int main(int argc, char *argv[]) {
 
     
     listing = stdout;
-    fprintf(listing, "\nC- COMPILATION: %s\n", pgm);
-
+    fprintf(listing, "\n------------------C- COMPILATION:-------------------------- \n");
+    fprintf(listing, "\n---------------------Lexical--------------------\n");
     /* Chama o parser para construir a árvore sintática */
     syntaxTree = parse();
+
+
    
-    fprintf(listing, "\nSyntax tree:\n");
+    fprintf(listing, "\n---------------------Sintatic--------------------\n");
     printTree(syntaxTree);
-    fprintf(listing, "\nBuilding Symbol Table...\n");
+
+    fprintf(listing, "\n----------------Semantic-----------------------\n");
     buildSymtab(syntaxTree);
-    fprintf(listing, "\nChecking Types...\n");
+
     typeCheck(syntaxTree);
+    fprintf(listing, "\nSemantic verification completed\n");
     fclose(source);
     return 0;
 }

@@ -1,7 +1,7 @@
 %{
+
 # define YYPARSER  
 # define YYSTYPE TreeNode*
-
 # include "globals.h"
 # include "aux_scanner.h"
 # include "aux_parser.h"

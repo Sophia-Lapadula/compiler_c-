@@ -1,0 +1,5 @@
+/* Exemplo de erro léxico (token inválido) */
+
+void main (void) {
+	int $variavel;
+}

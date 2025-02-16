@@ -1,0 +1,5 @@
+/* somente funções podem ser do tipo void */
+
+void main (void) {
+	void a;
+}

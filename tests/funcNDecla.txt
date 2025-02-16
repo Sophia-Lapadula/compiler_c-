@@ -1,0 +1,11 @@
+/* Função não declarada */
+
+int fa(void) {
+
+}
+
+
+void main (void) {
+	int a;
+    a = fc();
+}

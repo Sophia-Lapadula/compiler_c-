@@ -1,0 +1,10 @@
+/*func n retorna int*/
+
+void func(void) {
+
+}
+
+void main (void) {
+	int a;
+    a = func();
+}

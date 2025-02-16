@@ -1,0 +1,6 @@
+/* Função main não declarada */
+
+int funcao(void) {
+
+}
+

@@ -2,9 +2,11 @@
 # include <stdlib.h>
 # include <string.h>
 # include "symtab.h"
-# define SIZE 211
-# define SHIFT 4
 
+
+static BucketList hashTable[SIZE]; //Tamanho da tabela sintática
+
+//Função de hash 
 static int hash (char* name, char* scope) { 
     int temp = 0;
     int i = 0;
@@ -20,24 +22,8 @@ static int hash (char* name, char* scope) {
     return temp;
 }
 
-typedef struct LineListRec { 
-    int lineno;
-    struct LineListRec * next;
-} *LineList;
-
-typedef struct BucketListRec { 
-    char* name;
-    LineList lines;
-    int memloc ; 
-	char* scope;
-	char* typeID;
-	char* typeData; 
-    struct BucketListRec * next; 
-} *BucketList;
-
-static BucketList hashTable[SIZE];
-
-void st_insert( char * name, int lineno, int loc, char* scope, char* typeID, char* typeData) { 
+//Insere nó na tabela sintática
+void st_insert( char * name, int line_number, int loc, char* scope, char* typeID, char* typeData) { 
     int h = hash(name, scope);
     BucketList l =  hashTable[h];
     while ((l != NULL) && (strcmp(name,l->name) != 0) && (strcmp(scope,l->scope) != 0)) 
@@ -47,7 +33,7 @@ void st_insert( char * name, int lineno, int loc, char* scope, char* typeID, cha
         l = (BucketList) malloc(sizeof(struct BucketListRec));
         l->name = name;
         l->lines = (LineList) malloc(sizeof(struct LineListRec));
-        l->lines->lineno = lineno;
+        l->lines->line_number = line_number;
         l->memloc = loc;
         l->lines->next = NULL;
         l->scope = scope;
@@ -61,11 +47,11 @@ void st_insert( char * name, int lineno, int loc, char* scope, char* typeID, cha
         while (t->next != NULL) 
             t = t->next;
         t->next = (LineList) malloc(sizeof(struct LineListRec));
-        t->next->lineno = lineno;
+        t->next->line_number = line_number;
         t->next->next = NULL;  
     }
 } 
-
+//Procura nó na tabela sintática
 int st_lookup (char* name, char* scope) { 
     int h = hash(name, scope);	
     BucketList l =  hashTable[h];
@@ -76,7 +62,7 @@ int st_lookup (char* name, char* scope) {
     else 
         return l->memloc;
 }
-
+//Procura tipo na tabela sintática
 char* st_lookup_type (char* name, char* scope) { 
     int h = hash(name, scope);	
     BucketList l =  hashTable[h];
@@ -87,7 +73,7 @@ char* st_lookup_type (char* name, char* scope) {
     else 
         return l->typeData;
 }
-
+//Procura ID na tabela sintática
 char* st_lookup_id (char* name, char* scope) { 
     int h = hash(name, scope);	
     BucketList l =  hashTable[h];
@@ -98,23 +84,22 @@ char* st_lookup_id (char* name, char* scope) {
     else 
         return l->typeID;
 }
-
+//Printa tabela de símbolos
 void printSymTab(FILE * listing){
     int i;
-    fprintf(listing, "  Location         Name           Scope          TypeID        TypeData       NumLine  \n");
-    fprintf(listing, "------------   ------------   -------------   ------------   ------------   -------------\n");
+    fprintf(listing, "     Name           Scope           Type         Data Type        NumLine  \n");
+    fprintf(listing, " ------------   -------------   ------------   ------------   -------------\n");
     for (i=0;i<SIZE;++i) {
         if (hashTable[i] != NULL) {
             BucketList l = hashTable[i];
             while (l != NULL) {
                 LineList t = l->lines;
-                fprintf(listing, "%-12d   ", l->memloc);
-                fprintf(listing, "%-12s   ", l->name);
+                fprintf(listing, "%-14s   ", l->name);
                 fprintf(listing, "%-13s   ", l->scope);
                 fprintf(listing, "%-12s   ", l->typeID);
                 fprintf(listing, "%-12s   ", l->typeData);	
                 while (t != NULL) {
-                    fprintf(listing,"%-4d ",t->lineno);
+                    fprintf(listing,"%-4d ",t->line_number);
                     t = t->next;
                 }
                 fprintf(listing, "\n");

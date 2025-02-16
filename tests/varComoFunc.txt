@@ -1,0 +1,10 @@
+/* func já declarada como func e redeclara como var*/
+
+int func(void) {
+    
+}
+
+void main(void) {
+    int a;
+    int func;
+}

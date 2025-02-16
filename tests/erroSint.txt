@@ -1,0 +1,5 @@
+/*Erro sintático*/
+
+void main (void) {
+	int x
+}
